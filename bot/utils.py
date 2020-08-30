@@ -4,11 +4,11 @@ from config import config
 guild_to_audiocontroller = {}
 
 
-def get_guild(bot, command):
+def get_guild(client, command):
     """Gets the guild a command belongs to. Useful, if the command was sent via pm."""
     if command.guild is not None:
         return command.guild
-    for guild in bot.guilds:
+    for guild in client.guilds:
         for channel in guild.voice_channels:
             if command.author in channel.members:
                 return guild

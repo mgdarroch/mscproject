@@ -14,6 +14,7 @@ from bot.songinfo import Songinfo
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
 
 def playing_string(title):
     """Formats the name of the current song to better fit the nickname format."""
@@ -45,8 +46,8 @@ class AudioController(object):
                 guild: The guild in which the Audiocontroller operates.
         """
 
-    def __init__(self, bot, guild, volume):
-        self.bot = bot
+    def __init__(self, client, guild, volume):
+        self.client = client
         self._volume = volume
         self.playlist = Playlist()
         self.current_songinfo = None
@@ -93,7 +94,7 @@ class AudioController(object):
         else:
             coro = self.play_youtube(next_song)
 
-        self.bot.loop.create_task(coro)
+        self.client.loop.create_task(coro)
 
     async def add_youtube(self, link):
         """Processes a youtube link and passes elements of a playlist to the add_song function one by one"""
@@ -128,7 +129,9 @@ class AudioController(object):
         # Parse the search result page for the first results link
         search_words = title.split()
         search_url = "https://www.youtube.com/results?search_query=" + '+'.join(search_words)
-        driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=ChromeDriverManager().install())
         driver.get(search_url)
         continue_link = driver.find_element_by_tag_name('a')
         elems = driver.find_elements_by_xpath("//a[@href]")
@@ -140,15 +143,6 @@ class AudioController(object):
                 break
         driver.quit()
         return link
-        #search_words = title.split()
-        #search_url = "https://www.youtube.com/results?search_query=" + '+'.join(search_words)
-        #search_result = requests.get(search_url).text
-        #soup = BeautifulSoup(search_result, 'html.parser')
-        #videos = soup.select('yt-simple-endpoint inline-block style-scope ytd-thumbnail')
-        #if not videos:
-        #    print("No Videos Found!")
-        #link = "https://youtube.com" + videos[0]['href']
-        #print(link)
 
 
     async def play_youtube(self, youtube_link):

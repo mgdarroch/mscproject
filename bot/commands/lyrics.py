@@ -13,9 +13,11 @@ import socket
 import collections
 from socket import AF_INET, SOCK_DGRAM
 from bot import audiocontroller
+from bot import utils
+import config
 
 def load_credentials():
-    lines = [line.rstrip('\n') for line in open('commands/credentials.ini')]
+    lines = [line.rstrip('\n') for line in open('bot/commands/credentials.ini')]
     chars_to_strip = " \'\""
     for line in lines:
         if "client_id" in line:
@@ -91,6 +93,27 @@ class Lyrics(commands.Cog):
             message += "{0}. {1} - {2}\n".format(line_count,song[1], song[5])
             line_count += 1
         await ctx.send(message)
+        
+    
+    @commands.command()
+    async def lyricplay(self, ctx, *, lyrics):
+        client_id, client_secret, client_access_token = load_credentials()
+        results = search(lyrics, client_access_token)
+        search_term = ""
+        
+        current_guild = utils.get_guild(self.client, ctx.message)
+        if current_guild is None:
+            await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
+            return
+        audiocontroller = utils.guild_to_audiocontroller[current_guild]
+        
+        for song in results:
+            search_term += "{} {}".format(song[1], song[5])
+            break
+            
+        track = audiocontroller.convert_to_youtube_link(search_term)
+        await audiocontroller.add_youtube(track)
+        
 
 def setup(client):
     client.add_cog(Lyrics(client))

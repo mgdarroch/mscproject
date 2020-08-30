@@ -12,8 +12,8 @@ class General(commands.Cog):
                 bot: The instance of the bot that is executing the commands.
     """
 
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, client):
+        self.client = client
         
     
     @commands.Cog.listener()
@@ -22,20 +22,20 @@ class General(commands.Cog):
 
     @commands.command(name='connect', description=config.HELP_CONNECT_LONG, help=config.HELP_CONNECT_SHORT)
     async def _connect(self, ctx, *, dest_channel_name: str):
-        current_guild = utils.get_guild(self.bot, ctx.message)
+        current_guild = utils.get_guild(self.client, ctx.message)
 
         if current_guild is None:
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
 
         if utils.guild_to_audiocontroller[current_guild] is None:
-            utils.guild_to_audiocontroller[current_guild] = AudioController(self.bot, current_guild,
+            utils.guild_to_audiocontroller[current_guild] = AudioController(self.client, current_guild,
                                                                             config.DEFAULT_VOLUME)
         await utils.connect_to_channel(current_guild, dest_channel_name, ctx, switch=False, default=True)
 
     @commands.command(name='disconnect', description=config.HELP_DISCONNECT_LONG, help=config.HELP_DISCONNECT_SHORT)
     async def _disconnect(self, ctx):
-        current_guild = utils.get_guild(self.bot, ctx.message)
+        current_guild = utils.get_guild(self.client, ctx.message)
 
         if current_guild is None:
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
@@ -45,7 +45,7 @@ class General(commands.Cog):
 
     @commands.command(name='cc', aliases=["changechannel"], description=config.HELP_CC_LONG, help=config.HELP_CC_SHORT)
     async def _changechannel(self, ctx, *, dest_channel_name: str):
-        current_guild = utils.get_guild(self.bot, ctx.message)
+        current_guild = utils.get_guild(self.client, ctx.message)
 
         if current_guild is None:
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
@@ -58,5 +58,5 @@ class General(commands.Cog):
         await ctx.send(config.ADD_MESSAGE_1 + str(self.bot.user.id) + config.ADD_MESSAGE_2)
 
 
-def setup(bot):
-    bot.add_cog(General(bot))
+def setup(client):
+    client.add_cog(General(client))
