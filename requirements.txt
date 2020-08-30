@@ -1,0 +1,10 @@
+tensorflow
+keras
+tensorflow-datasets
+matplotlib
+discord.py[voice]
+lyricsgenius
+youtube-dl
+bs4pip 
+selenium
+webdriver_manager

@@ -32,7 +32,7 @@ async def play(ctx):
 
 @client.command()
 async def load(ctx, extension):
-    client.load_extension('cogs.{}'.format(extension))
+    client.load_extension('commands.{}'.format(extension))
     print('{} has been loaded.'.format(extension))
     await ctx.send('{} has been loaded.'.format(extension))
     
@@ -57,5 +57,5 @@ for filename in os.listdir('./cogs'):
 # keep track of which servers the bot is connected to
 # keep track of which users are connected to the server
 # keep track of which channels each user is connected to? Maybe.
-# 
+
 client.run('NzMzMzQ4MDg0NzEyNzM0NzIw.XxB7Eg.dLye5X1qpWkmTbvqThJ2n8Kp6_E')
