@@ -1,6 +1,6 @@
 import discord
+import os
 from discord.ext import commands
-
 from config.config import *
 from bot.audiocontroller import AudioController
 from bot.utils import guild_to_audiocontroller
@@ -42,6 +42,25 @@ async def on_guild_join(guild):
         await guild_to_audiocontroller[guild].register_voice_channel(guild.voice_channels[0])
     except:
         print("could not join "+guild.name)
+    
 
+@client.command()
+async def load(ctx, extension):
+    client.load_extension('commands.{}'.format(extension))
+    print('{} has been loaded.'.format(extension))
+    await ctx.send('{} has been loaded.'.format(extension))
+    
+@client.command()
+async def unload(ctx, extension):
+    client.unload_extension('commands.{}'.format(extension))
+    print('{} has been unloaded.'.format(extension))
+    await ctx.send('{} has been unloaded.'.format(extension))
+    
+
+for filename in os.listdir('./bot/commands'):
+    if filename.endswith('.py'):
+        client.load_extension('commands.{}'.format(filename[:-3]))
+        
+    
 
 client.run(token, bot=True, reconnect=True)

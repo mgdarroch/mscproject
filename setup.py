@@ -23,5 +23,5 @@ setup(
         "pytest==5.4.3",
         "distest==0.4.8",
     ],
-    python_requires='3.6',
+    python_requires='==3.6',
 )
