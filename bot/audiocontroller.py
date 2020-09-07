@@ -1,23 +1,25 @@
-import urllib.request
-import urllib.parse
-import requests
-from string import printable
-
+# Imports for discord and Selenium for parsing web pages
 import discord
 import youtube_dl
-from bs4 import BeautifulSoup
-
-from config import config
-from bot.playlist import Playlist
-from bot.songinfo import Songinfo
-
+import urllib.parse
+import urllib.request
+import requests
+import urllib.request
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
+from string import printable
+
+# imports for AudioController object
+from config import config
+from bot.playlist import Playlist
+from bot.songinfo import Songinfo
+
+
 
 def playing_string(title):
-    """Formats the name of the current song to better fit the nickname format."""
+    # string reformatting for displaying the song title on the discord bot name
     filter(lambda x: x in set(printable), title)
     title_parts = title.split(" ")
     short_title = ""
@@ -36,17 +38,10 @@ def playing_string(title):
 
 
 class AudioController(object):
-    """ Controls the playback of audio and the sequential playing of the songs.
-
-            Attributes:
-                bot: The instance of the bot that will be playing the music.
-                _volume: the volume of the music being played.
-                playlist: A Playlist object that stores the history and queue of songs.
-                current_songinfo: A Songinfo object that stores details of the current song.
-                guild: The guild in which the Audiocontroller operates.
-        """
+    #  The audiocontroller handles the playing of audio and the transition from one song to the next in the play queue.
 
     def __init__(self, client, guild, volume):
+        # initialisation values
         self.client = client
         self._volume = volume
         self.playlist = Playlist()
@@ -79,12 +74,12 @@ class AudioController(object):
     
     def track_queue(self):
         queue_string = config.QUEUE_TITLE
-        for trackname in self.playlist.playque:
+        for trackname in self.playlist.playqueue:
             queue_string += "\n" + trackname
         return queue_string
 
     def next_song(self, error):
-        """Invoked after a song is finished. Plays the next song if there is one, resets the nickname otherwise"""
+        # called when one song finishes playing, if there is no more songs the nickname of the bot is set to the default again.
 
         self.current_songinfo = None
         next_song = self.playlist.next()
@@ -97,36 +92,45 @@ class AudioController(object):
         self.client.loop.create_task(coro)
 
     async def add_youtube(self, link):
-        """Processes a youtube link and passes elements of a playlist to the add_song function one by one"""
+        # Checks if a link is a playlist, if it is it parses the playlist, adding each video to the bot playlist
 
-        # Pass it on if it is not a playlist
+        # If link isn't a playlist this method is skipped over
         if not ("playlist?list=" in link):
             await self.add_song(link)
             return
 
         # Parse the playlist page html and get all the individual video links
-        response = urllib.request.urlopen(link)
-        print("Reading page")
-        soup = BeautifulSoup(response.read(), "html.parser")
-        res = soup.find_all('a', {'class': 'pl-video-title-link'})
-        for l in res:
-            await self.add_song('https://www.youtube.com' + l.get("href"))
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=ChromeDriverManager().install())
+        driver.get(link)
+        continue_link = driver.find_element_by_tag_name('a')
+        elems = driver.find_elements_by_xpath("//a[@href]")
+        link = ""
+        for elem in elems:
+            attribute = elem.get_attribute("href")
+            if ("watch?v=") in attribute:
+                link = attribute
+                await self.add_song(link)
+        driver.quit()
 
+
+            
     async def add_song(self, track):
-        """Adds the track to the playlist instance and plays it, if it is the first song"""
+        # Adds a song to the bot's playlist.  If the song is the first one in the playlist the bot will begin playing the audio.
 
-        # If the track is a video title, get the corresponding video link first
+        # If the track is a video title, get the youtube link
         if not ("watch?v=" in track):
             link = self.convert_to_youtube_link(track)
         else:
             link = track
         self.playlist.add(link)
-        if len(self.playlist.playque) == 1:
+        if len(self.playlist.playqueue) == 1:
             await self.play_youtube(link)
 
     def convert_to_youtube_link(self, title):
-        #Converts a query into a youtube link
-        # Parse the search result page for the first results link
+        # takes a string and converts it to a query on youtube
+        # the resulting search is then parsed and the first link is selected.  Not 100% accurate and you won't always get the video you want.
         search_words = title.split()
         search_url = "https://www.youtube.com/results?search_query=" + '+'.join(search_words)
         chrome_options = Options()
@@ -146,14 +150,14 @@ class AudioController(object):
 
 
     async def play_youtube(self, youtube_link):
-        """Downloads and plays the audio of the youtube link passed"""
+        #  Gets the info of the video
+        # Then streams the video audio and plays it in the voice channel
 
         youtube_link = youtube_link.split("&list=")[0]
 
         try:
             downloader = youtube_dl.YoutubeDL({'format': 'bestaudio', 'title': True})
             extracted_info = downloader.extract_info(youtube_link, download=False)
-        # "format" is not available for livestreams - redownload the page with no options
         except:
             try:
                 downloader = youtube_dl.YoutubeDL({})
@@ -162,32 +166,34 @@ class AudioController(object):
                 self.next_song(None)
 
         
-        # Update the songinfo to reflect the current song
+        # updates song info
         self.current_songinfo = Songinfo(extracted_info.get('uploader'), extracted_info.get('creator'),
                                          extracted_info.get('title'), extracted_info.get('duration'),
                                          extracted_info.get('like_count'), extracted_info.get('dislike_count'),
                                          extracted_info.get('webpage_url'))
 
-        # Change the nickname to indicate, what song is currently playing
+        # the nickname of the bot is changed to the title of the video
         await self.guild.me.edit(nick=playing_string(extracted_info.get('title')))
         self.playlist.add_name(extracted_info.get('title'))
         
-        self.voice_client.play(discord.FFmpegPCMAudio(extracted_info['url']), after=lambda e: self.next_song(e))
+        self.voice_client.play(discord.FFmpegPCMAudio(extracted_info['url'], before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'), after=lambda e: self.next_song(e))
         self.voice_client.source = discord.PCMVolumeTransformer(self.guild.voice_client.source)
         self.voice_client.source.volume = float(self.volume) / 100.0
 
     async def stop_player(self):
-        """Stops the player and removes all songs from the queue"""
+        # stops the bot from transmitting audio in the voice channel
         if self.guild.voice_client is None or (
                 not self.guild.voice_client.is_paused() and not self.guild.voice_client.is_playing()):
             return
         self.playlist.next()
-        self.playlist.playque.clear()
+        self.playlist.playqueue.clear()
         self.guild.voice_client.stop()
         await self.guild.me.edit(nick=config.DEFAULT_NICKNAME)
 
+  
+  
     async def prev_song(self):
-        """Loads the last ong from the history into the queue and starts it"""
+        # gets the most recent song in the track history and plays it again
         if len(self.playlist.playhistory) == 0:
             return None
         if self.guild.voice_client is None or (

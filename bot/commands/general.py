@@ -55,7 +55,7 @@ class General(commands.Cog):
 
     @commands.command(name='addbot', description=config.HELP_ADDBOT_LONG, help=config.HELP_ADDBOT_SHORT)
     async def _addbot(self, ctx):
-        await ctx.send(config.ADD_MESSAGE_1 + str(self.bot.user.id) + config.ADD_MESSAGE_2)
+        await ctx.send(config.ADD_MESSAGE_1 + str(self.client.user.id) + config.ADD_MESSAGE_2)
 
 
 def setup(client):

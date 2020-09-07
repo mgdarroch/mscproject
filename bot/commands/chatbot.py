@@ -70,10 +70,8 @@ def load_conversations():
 
 questions, answers = load_conversations()
 
-#print('Sample question: {}'.format(questions[20]))
-#print('Sample answer: {}'.format(answers[20]))
-
-
+#######################
+### TOKENIZE DATA #####
 
 # Build tokenizer using tfds for both questions and answers
 tokenizer = tfds.features.text.SubwordTextEncoder.build_from_corpus(
@@ -464,7 +462,7 @@ model.compile(optimizer=optimizer, loss=loss_function, metrics=[accuracy])
 
 EPOCHS = 2
 
-model.load_weights('bot/commands/trainedweights')
+model.load_weights('bot/commands/chatbot_files/trainedweights')
 
 def evaluate(sentence):
   sentence = preprocess_sentence(sentence)
@@ -509,10 +507,7 @@ class ChatBot(commands.Cog):
     @commands.command()
     async def chat(self, ctx, *, question):
         await ctx.send(predict(question))
-        
-    @commands.command()
-    async def test(self, ctx):
-        await ctx.send(test_file.test())
+      
 
 def setup(client):
     client.add_cog(ChatBot(client))

@@ -1,5 +1,9 @@
 token: str = "NzMzMzQ4MDg0NzEyNzM0NzIw.XxB7Eg.dLye5X1qpWkmTbvqThJ2n8Kp6_E"
-DEFAULT_NICKNAME = "{ChoonzBot}"
+CLIENT_ID = '9bghKCR_r63trsjHm5xKOlX-ao14wm-WZjp3YtYliI9zkeL04U8phKvHWh93ve27'
+CLIENT_SECRET = 'x3tpg54Pfd2-2McPxjFIbco9L95fKnQmDTglS6Bv8QrwJhydpoUD54El1EvRqNu1BTQP8eDQ7JAviFMyqBNLdQ'
+CLIENT_ACCESS_TOKEN = 'qG_lekQfkgn5sUaeDz6EWtIXBsGsH8hDsjPFNvNIbHYvuCvTXt_sQZPtP77pY0xq'
+
+DEFAULT_NICKNAME = "{DiscBot}"
 
 STARTUP_MESSAGE = "Starting Bot..."
 STARTUP_COMPLETE_MESSAGE = "Startup Complete"
@@ -18,7 +22,7 @@ ADD_MESSAGE_2 = "&scope=bot>"
 DEFAULT_VOLUME = 7
 
 INFO_HISTORY_TITLE = "Songs Played:"
-QUEUE_TITLE = "Song Queue"
+QUEUE_TITLE = "Song Queue:"
 MAX_HISTORY_LENGTH = 10
 MAX_TRACKNAME_HISTORY_LENGTH = 15
 
@@ -27,6 +31,11 @@ SONGINFO_DURATION = "Duration: "
 SONGINFO_SECONDS = "s"
 SONGINFO_LIKES = "Likes: "
 SONGINFO_DISLIKES = "Dislikes: "
+
+HELP_LYRICPLAY_SHORT = "Finds and plays the song from lyrics."
+HELP_LYRICPLAY_LONG = "Uses the provided lyrics to search up a song and play it in a voice channel"
+HELP_LYRICSEARCH_SHORT = "Returns a list of songs based on the lyrics provided"
+HELP_LYRICSEARCH_LONG = "Uses the lyrics provided to search for linked songs and displays the results in a list"
 
 HELP_ADDBOT_SHORT = "Add Bot to another server"
 HELP_ADDBOT_LONG = "Gives you the link for adding this bot to another server of yours."

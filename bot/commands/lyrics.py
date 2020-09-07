@@ -6,7 +6,6 @@ import re
 import urllib.request
 import urllib.parse
 import json
-import csv
 import codecs
 import os
 import socket
@@ -14,19 +13,12 @@ import collections
 from socket import AF_INET, SOCK_DGRAM
 from bot import audiocontroller
 from bot import utils
-import config
+from config import config
 
 def load_credentials():
-    lines = [line.rstrip('\n') for line in open('bot/commands/credentials.ini')]
-    chars_to_strip = " \'\""
-    for line in lines:
-        if "client_id" in line:
-            client_id = re.findall(r'[\"\']([^\"\']*)[\"\']', line)[0]
-        if "client_secret" in line:
-            client_secret = re.findall(r'[\"\']([^\"\']*)[\"\']', line)[0]
-        #Currently only need access token to run, the other two perhaps for future implementation
-        if "client_access_token" in line:
-            client_access_token = re.findall(r'[\"\']([^\"\']*)[\"\']', line)[0]
+    client_id = config.CLIENT_ID
+    client_secret = config.CLIENT_SECRET
+    client_access_token = config.CLIENT_ACCESS_TOKEN
     return client_id, client_secret, client_access_token
 
     
@@ -37,10 +29,10 @@ def search(search_term,client_access_token):
         querystring = "http://api.genius.com/search?q=" + urllib.parse.quote(search_term) + "&page=" + str(page)
         request_att = urllib.request.Request(querystring)
         request_att.add_header("Authorization", "Bearer " + client_access_token)   
-        request_att.add_header("User-Agent", "curl/7.9.8 (i686-pc-linux-gnu) libcurl 7.9.8 (OpenSSL 0.9.6b) (ipv6 enabled)") #Must include user agent of some sort, otherwise 403 returned
+        request_att.add_header("User-Agent", "curl/7.9.8 (i686-pc-linux-gnu) libcurl 7.9.8 (OpenSSL 0.9.6b) (ipv6 enabled)") 
         while True:
             try:
-                response = urllib.request.urlopen(request_att, timeout=4) #timeout set to 4 seconds; automatically retries if times out
+                response = urllib.request.urlopen(request_att, timeout=4) 
                 raw = response.read()
             except socket.timeout:
                 print("Timeout raised and caught")
@@ -78,10 +70,11 @@ class Lyrics(commands.Cog):
     @commands.Cog.listener()
     #self must be the first parameter that every function in the class takes
     async def on_ready(self):
-        genius = lyricsgenius.Genius("71Qqk2gCXUJWt1hBCqIdl4cXXSkpqchoGygISzHMKVNv0fn2E_hHouppZp6Ft1iD")
+        client_id, client_secret, client_access_token = load_credentials()
+        genius = lyricsgenius.Genius(client_access_token)
         print('Lyrics Cog Loaded')
         
-    @commands.command()
+    @commands.command(description = config.HELP_LYRICSEARCH_LONG, help = config.HELP_LYRICSEARCH_SHORT)
     async def lyricsearch(self, ctx, *, lyrics):
         client_id, client_secret, client_access_token = load_credentials()
         results = search(lyrics, client_access_token)
@@ -95,7 +88,7 @@ class Lyrics(commands.Cog):
         await ctx.send(message)
         
     
-    @commands.command()
+    @commands.command(description = config.HELP_LYRICPLAY_LONG, help = config.HELP_LYRICPLAY_SHORT)
     async def lyricplay(self, ctx, *, lyrics):
         client_id, client_secret, client_access_token = load_credentials()
         results = search(lyrics, client_access_token)
@@ -111,8 +104,7 @@ class Lyrics(commands.Cog):
             search_term += "{} {}".format(song[1], song[5])
             break
             
-        track = audiocontroller.convert_to_youtube_link(search_term)
-        await audiocontroller.add_youtube(track)
+        await audiocontroller.add_song(search_term)
         
 
 def setup(client):

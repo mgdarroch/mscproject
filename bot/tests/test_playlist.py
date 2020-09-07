@@ -22,7 +22,7 @@ def test_next():
     # skip one, which should add the first track to the playhistory and pop it off the playque
     playlist.next()
     # leaving 1 track in the playque and 1 track in the playhistory
-    assert len(playlist.playque) == 1 & len(playlist.playhistory) == 1
+    assert len(playlist.playque) == 1 and len(playlist.playhistory) == 1
 
 def test_prev():
     playlist = Playlist()

@@ -1,3 +1,5 @@
-bot/commands/checkpoint
-bot/commands/trainedweights.data-00000-of-00001
-bot/commands/trainedweights.index
+bot/commands/chatbot_files
+bot/__pycache__
+bot/commands/__pycache__
+bot/tests/__pycache__
+bot/tests/.pytest_cache

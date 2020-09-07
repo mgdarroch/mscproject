@@ -8,14 +8,15 @@ class Playlist:
 
     def __init__(self):
         # Stores the ytlinks os the songs in queue and the ones already played
-        self.playque = deque()
+        self.playqueue = deque()
         self.playhistory = deque()
 
         # A seperate history that remembers the names of the tracks that were played
         self.trackname_history = deque()
+        self.playquename_history = deque()
 
     def __len__(self):
-        return len(self.playque)
+        return len(self.playqueue)
 
     def add_name(self, trackname):
         self.trackname_history.append(trackname)
@@ -23,26 +24,26 @@ class Playlist:
                 self.trackname_history.popleft()
 
     def add(self, track):
-        self.playque.append(track)
+        self.playqueue.append(track)
 
     def next(self):
-        song_played = self.playque.popleft()
+        song_played = self.playqueue.popleft()
         if song_played != "Dummy":
             self.playhistory.append(song_played)
             if len(self.playhistory) > config.MAX_HISTORY_LENGTH:
                 self.playhistory.popleft()
-        if len(self.playque) == 0:
+        if len(self.playqueue) == 0:
             return None
-        return self.playque[0]
+        return self.playqueue[0]
 
     def prev(self):
         if len(self.playhistory) == 0:
             dummy = "DummySong"
-            self.playque.appendleft(dummy)
+            self.playqueue.appendleft(dummy)
             return dummy
-        self.playque.appendleft(self.playhistory.pop())
-        return self.playque[0]
+        self.playqueue.appendleft(self.playhistory.pop())
+        return self.playqueue[0]
 
     def empty(self):
-        self.playque.clear()
+        self.playqueue.clear()
         self.playhistory.clear()
