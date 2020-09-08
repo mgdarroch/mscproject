@@ -5,9 +5,17 @@ from config.config import *
 from bot.audiocontroller import AudioController
 from bot.utils import guild_to_audiocontroller
 
+class TestableBot(commands.Bot):
+    def __init__(self, command_prefix=".", **options):
+        super().__init__(command_prefix, **options)
+        
+    async def process_commands(self, message):
+        ctx = await self.get_context(message)
+        await self.invoke(ctx)
+
 
 initial_extensions = ['bot.commands.music', 'bot.commands.general', 'bot.commands.chatbot', 'bot.commands.lyrics']
-client = commands.Bot(command_prefix=".", pm_help=True)
+client = TestableBot(command_prefix=".", pm_help=True)
 
 if __name__ == '__main__':
     for extension in initial_extensions:
@@ -15,12 +23,14 @@ if __name__ == '__main__':
             client.load_extension(extension)
         except Exception as e:
             print(e)
+            
+            
 
 
 @client.event
 async def on_ready():
     print(STARTUP_MESSAGE)
-    await client.change_presence(status=discord.Status.online, activity=discord.Game(name=" Music, type .help "))
+    await client.change_presence(status=discord.Status.online, activity=discord.Game(name=" Music, type .help"))
 
     for guild in client.guilds:
         print(guild.name)
@@ -55,12 +65,7 @@ async def unload(ctx, extension):
     client.unload_extension('commands.{}'.format(extension))
     print('{} has been unloaded.'.format(extension))
     await ctx.send('{} has been unloaded.'.format(extension))
-    
-
-for filename in os.listdir('./bot/commands'):
-    if filename.endswith('.py'):
-        client.load_extension('commands.{}'.format(filename[:-3]))
         
     
-
+    
 client.run(token, bot=True, reconnect=True)

@@ -55,4 +55,12 @@ def test_convert_to_youtube_link():
     link = test_controller.convert_to_youtube_link(search_term)
     assert link == "https://www.youtube.com/watch?v=E5H8DwJI0uA"
     
-
+    
+def test_add_youtube():
+    pass
+    
+def test_add_song():
+    pass
+    
+def test_prev_song():
+    pass

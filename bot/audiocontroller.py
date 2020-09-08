@@ -102,7 +102,7 @@ class AudioController(object):
         # Parse the playlist page html and get all the individual video links
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=ChromeDriverManager().install())
+        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path="chromedriver.exe")
         driver.get(link)
         continue_link = driver.find_element_by_tag_name('a')
         elems = driver.find_elements_by_xpath("//a[@href]")
@@ -135,7 +135,7 @@ class AudioController(object):
         search_url = "https://www.youtube.com/results?search_query=" + '+'.join(search_words)
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=ChromeDriverManager().install())
+        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path="chromedriver.exe")
         driver.get(search_url)
         continue_link = driver.find_element_by_tag_name('a')
         elems = driver.find_elements_by_xpath("//a[@href]")
