@@ -1,2 +1,2 @@
 # mscproject
-Discord Chatbot and Music Bot
+Discord Music and Chatbot
