@@ -32,6 +32,8 @@ class General(commands.Cog):
             utils.guild_to_audiocontroller[current_guild] = AudioController(self.client, current_guild,
                                                                             config.DEFAULT_VOLUME)
         await utils.connect_to_channel(current_guild, dest_channel_name, ctx, switch=False, default=True)
+        msg = "Connected to " + dest_channel_name
+        await utils.send_message(ctx, msg)
 
     @commands.command(name='disconnect', description=config.HELP_DISCONNECT_LONG, help=config.HELP_DISCONNECT_SHORT)
     async def _disconnect(self, ctx):
@@ -42,6 +44,8 @@ class General(commands.Cog):
             return
         await utils.guild_to_audiocontroller[current_guild].stop_player()
         await current_guild.voice_client.disconnect()
+        await utils.send_message(ctx, "Disconnected from channel")
+        
 
     @commands.command(name='cc', aliases=["changechannel"], description=config.HELP_CC_LONG, help=config.HELP_CC_SHORT)
     async def _changechannel(self, ctx, *, dest_channel_name: str):
@@ -50,8 +54,10 @@ class General(commands.Cog):
         if current_guild is None:
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
-
+        
         await utils.connect_to_channel(current_guild, dest_channel_name, ctx, switch=True, default=False)
+        msg = "Moving to channel: " + dest_channel_name
+        await utils.send_message(ctx, msg)
 
     @commands.command(name='addbot', description=config.HELP_ADDBOT_LONG, help=config.HELP_ADDBOT_SHORT)
     async def _addbot(self, ctx):

@@ -16,7 +16,7 @@ def get_guild(client, command):
 
 
 async def send_message(ctx, message):
-    await ctx.send("```\n" + message + "\n```")
+    await ctx.send("\n" + message + "\n")
 
 
 async def connect_to_channel(guild, dest_channel_name, ctx, switch=False, default=True):

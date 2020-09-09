@@ -105,6 +105,7 @@ class Lyrics(commands.Cog):
             break
             
         await audiocontroller.add_song(search_term)
+        await utils.send_message(ctx, "Added {} to playlist...".format(song[1]))
         
 
 def setup(client):

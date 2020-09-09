@@ -24,8 +24,6 @@ if __name__ == '__main__':
         except Exception as e:
             print(e)
             
-            
-
 
 @client.event
 async def on_ready():

@@ -31,6 +31,7 @@ class Music(commands.Cog):
         if track.isspace() or not track:
             return
         await audiocontroller.add_youtube(track)
+        await utils.send_message(ctx, "Playing from Youtube...")
 
     @commands.command(name='pause', description= config.HELP_PAUSE_LONG, help = config.HELP_PAUSE_SHORT)
     async def _pause(self, ctx):
@@ -41,6 +42,7 @@ class Music(commands.Cog):
         if current_guild.voice_client is None or not current_guild.voice_client.is_playing():
             return
         current_guild.voice_client.pause()
+        await utils.send_message(ctx, "Playback Paused...")
 
     @commands.command(name='stop', description = config.HELP_STOP_LONG, help =config. HELP_STOP_SHORT)
     async def _stop(self, ctx):
@@ -49,6 +51,7 @@ class Music(commands.Cog):
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
         await utils.guild_to_audiocontroller[current_guild].stop_player()
+        await utils.send_message(ctx, "Stopping all playback...")
 
     @commands.command(name='skip', description = config.HELP_SKIP_LONG, help = config.HELP_SKIP_SHORT)
     async def _skip(self, ctx):
@@ -60,6 +63,7 @@ class Music(commands.Cog):
                 not current_guild.voice_client.is_paused() and not current_guild.voice_client.is_playing()):
             return
         current_guild.voice_client.stop()
+        await utils.send_message(ctx, "Skipping song...")
 
     @commands.command(name='prev', description = config.HELP_PREV_LONG, help = config.HELP_PREV_SHORT)
     async def _prev(self, ctx):
@@ -68,6 +72,7 @@ class Music(commands.Cog):
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
         await utils.guild_to_audiocontroller[current_guild].prev_song()
+        await utils.send_message(ctx, "Playing previous song...")
 
     @commands.command(name='resume', description = config.HELP_RESUME_LONG, help = config.HELP_RESUME_SHORT)
     async def _resume(self, ctx):
@@ -76,6 +81,7 @@ class Music(commands.Cog):
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
         current_guild.voice_client.resume()
+        await utils.send_message(ctx, "Resuming Playback...")
 
     @commands.command(name='vol', aliases = ["volume"], description = config.HELP_VOL_LONG, help = config.HELP_VOL_SHORT)
     async def _volume(self, ctx, volume):
@@ -85,6 +91,7 @@ class Music(commands.Cog):
             return
 
         utils.guild_to_audiocontroller[current_guild].volume = volume
+        await utils.send_message(ctx, "Changing Volume...")
 
     @commands.command(name='spotify', description = config.HELP_SPOTIFY_LONG, help = config.HELP_SPOTIFY_SHORT)
     async def _spotify(self, ctx,  *, nick_name=None):
@@ -110,6 +117,7 @@ class Music(commands.Cog):
         song = spotify_member.activity.title + " " + spotify_member.activity.artist
 
         await utils.guild_to_audiocontroller[current_guild].add_song(song)
+        await utils.send_message(ctx, "Playing from Spotify...")
 
     @commands.command(name='songinfo', description = config.HELP_SONGINFO_LONG, help = config.HELP_SONGINFO_SHORT)
     async def _songinfo(self, ctx):
@@ -117,10 +125,10 @@ class Music(commands.Cog):
         if current_guild is None:
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
-        songinfo = utils.guild_to_audiocontroller[current_guild].current_songinfo
+        songinfo = utils.guild_to_audiocontroller[current_guild].current_songinfo.output
         if songinfo is None:
             return
-        await ctx.message.author.send(songinfo.output)
+        await utils.send_message(ctx, songinfo)
 
     @commands.command(name='history', description = config.HELP_HISTORY_LONG, help = config.HELP_HISTORY_SHORT)
     async def _history(self, ctx):
