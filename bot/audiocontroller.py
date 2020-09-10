@@ -101,11 +101,6 @@ class AudioController(object):
 
     async def add_youtube(self, link):
         
-        service = services.Geckodriver(binary=config.GECKODRIVER)
-        browser = browsers.Firefox()
-        async with get_session(service, browser) as session:
-            await session.get(link)
-            elems = await session.wait_for_element()
         # Checks if a link is a playlist, if it is it parses the playlist, adding each video to the bot playlist
 
         # If link isn't a playlist this method is skipped over
