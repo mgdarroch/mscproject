@@ -21,7 +21,10 @@ setup(
         "selenium==3.141.0",
         "webdriver_manager==3.2.2",
         "pytest==5.4.3",
+        "pytest-asyncio==0.14.0"
         "distest==0.4.8",
+        "scipy==1.4.1",
+        "aiohttp==3.6.2",
     ],
-    python_requires='==3.6',
+    python_requires='==3.7.4',
 )

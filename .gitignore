@@ -5,3 +5,8 @@ bot/tests/__pycache__
 bot/tests/.pytest_cache
 distest.txt
 documentation
+DiscBot.egg-info
+dist
+build
+bot\tests\__pycache__
+bot\__pycache__

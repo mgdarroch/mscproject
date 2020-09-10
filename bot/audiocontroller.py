@@ -5,16 +5,25 @@ import urllib.parse
 import urllib.request
 import requests
 import urllib.request
+import asyncio
+import aiohttp
+import sys
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from string import printable
 
+
+from arsenic import get_session, keys, browsers, services
+
 # imports for AudioController object
 from config import config
 from bot.playlist import Playlist
 from bot.songinfo import Songinfo
+
+
+
 
 
 
@@ -65,7 +74,6 @@ class AudioController(object):
         self.voice_client = await channel.connect()
             
         
-
     def track_history(self):
         history_string = config.INFO_HISTORY_TITLE
         for trackname in self.playlist.trackname_history:
@@ -92,6 +100,12 @@ class AudioController(object):
         self.client.loop.create_task(coro)
 
     async def add_youtube(self, link):
+        
+        service = services.Geckodriver(binary=config.GECKODRIVER)
+        browser = browsers.Firefox()
+        async with get_session(service, browser) as session:
+            await session.get(link)
+            elems = await session.wait_for_element()
         # Checks if a link is a playlist, if it is it parses the playlist, adding each video to the bot playlist
 
         # If link isn't a playlist this method is skipped over
@@ -102,8 +116,8 @@ class AudioController(object):
         # Parse the playlist page html and get all the individual video links
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path="chromedriver.exe")
-        #driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=ChromeDriverManager().install())
+        #driver = webdriver.Chrome(chrome_options=chrome_options, executable_path="chromedriver.exe")
+        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=ChromeDriverManager().install())
         driver.get(link)
         continue_link = driver.find_element_by_tag_name('a')
         elems = driver.find_elements_by_xpath("//a[@href]")
@@ -136,8 +150,8 @@ class AudioController(object):
         search_url = "https://www.youtube.com/results?search_query=" + '+'.join(search_words)
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path="chromedriver.exe")
-        #driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=ChromeDriverManager().install())
+        #driver = webdriver.Chrome(chrome_options=chrome_options, executable_path="chromedriver.exe")
+        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=ChromeDriverManager().install())
         driver.get(search_url)
         continue_link = driver.find_element_by_tag_name('a')
         elems = driver.find_elements_by_xpath("//a[@href]")
