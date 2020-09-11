@@ -3,16 +3,15 @@ import discord
 import youtube_dl
 import urllib.parse
 import urllib.request
-import requests
 import urllib.request
 import asyncio
 import aiohttp
 import sys
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
+import html5lib
+import re
+import json
 from string import printable
+from bs4 import BeautifulSoup
 
 
 from arsenic import get_session, keys, browsers, services
@@ -98,77 +97,106 @@ class AudioController(object):
             coro = self.play_youtube(next_song)
 
         self.client.loop.create_task(coro)
+        
+        
+    async def get_site_content(self, url):
+        headers= {"User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"}
+        async with aiohttp.ClientSession(headers=headers) as session:
+            print("URL BEING SEARCHED FOR: " + url)
+            async with session.get(url) as resp:
+                return await resp.text()
 
     async def add_youtube(self, link):
-        
         # Checks if a link is a playlist, if it is it parses the playlist, adding each video to the bot playlist
-
         # If link isn't a playlist this method is skipped over
         if not ("playlist?list=" in link):
             await self.add_song(link)
             return
 
-        # Parse the playlist page html and get all the individual video links
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        #driver = webdriver.Chrome(chrome_options=chrome_options, executable_path="chromedriver.exe")
-        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=ChromeDriverManager().install())
-        driver.get(link)
-        continue_link = driver.find_element_by_tag_name('a')
-        elems = driver.find_elements_by_xpath("//a[@href]")
-        link = ""
-        for elem in elems:
-            attribute = elem.get_attribute("href")
-            if ("watch?v=") in attribute:
-                link = attribute
-                await self.add_song(link)
-        driver.quit()
+
+        text = await self.get_site_content(link)
+        soup = BeautifulSoup(text, 'html5lib')
+        aid=soup.find('script',string=re.compile('ytInitialData'))
+        script=extracted_josn_text=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
+        video_results=json.loads(script)
+        json_out = json.dump(video_results, open("script.json", "w", encoding="utf-8"))
+        item_section=video_results["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"]
+        links = []
+        for item in item_section:
+            try:
+                video_info=item["videoRenderer"]
+                url=video_info["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"]
+                link = "https://www.youtube.com" + url
+                links.append(link)
+            except KeyError:
+                pass
+        
+        for link in links:
+            self.add_song(link)
 
 
+    async def convert_to_youtube_link(self, title):
+        filter(lambda x: x in set(printable), title)
+        query = urllib.parse.quote(title)
+        url = "https://www.youtube.com/results?search_query=" + query
+        
+        text = await self.get_site_content(url)
+        soup = BeautifulSoup(text, 'html5lib')
+        #with open("soup-output.txt", "w", encoding="utf-8") as f:
+        #    f.write(soup.prettify())
+        
+        aid=soup.find('script',string=re.compile('ytInitialData'))
+        #with open("output.txt", "w", encoding="utf-8") as f:
+        #    f.write(aid.prettify())
+        script=extracted_josn_text=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
+        #with open("script.txt", "w", encoding="utf-8") as f:
+        #    f.write(script)
+        video_results=json.loads(script)
+        json_out = json.dump(video_results, open("script.json", "w", encoding="utf-8"))
+        item_section=video_results["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"]
+        #with open('item_section.txt', 'w', encoding="utf-8") as filehandle:
+        #    for listitem in item_section:
+        #        filehandle.write('%s\n' % listitem)
+        
+        urls = []
+        for item in item_section:
+            try:
+                video_info=item["videoRenderer"]
+                url=video_info["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"]
+                urls.append(url)
+            except KeyError:
+                pass
+            
+        link = "https://www.youtube.com" + urls[0]
+        return link
+
+       
             
     async def add_song(self, track):
         # Adds a song to the bot's playlist.  If the song is the first one in the playlist the bot will begin playing the audio.
-
         # If the track is a video title, get the youtube link
-        if not ("watch?v=" in track):
-            link = self.convert_to_youtube_link(track)
+        if not ("https://" in track):
+            link = await self.convert_to_youtube_link(track)
+            if link is None:
+                link = await self.convert_to_youtube_link(track)
+                if link is None:
+                    return
         else:
             link = track
         self.playlist.add(link)
         if len(self.playlist.playqueue) == 1:
             await self.play_youtube(link)
-
-    def convert_to_youtube_link(self, title):
-        # takes a string and converts it to a query on youtube
-        # the resulting search is then parsed and the first link is selected.  Not 100% accurate and you won't always get the video you want.
-        search_words = title.split()
-        search_url = "https://www.youtube.com/results?search_query=" + '+'.join(search_words)
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        #driver = webdriver.Chrome(chrome_options=chrome_options, executable_path="chromedriver.exe")
-        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=ChromeDriverManager().install())
-        driver.get(search_url)
-        continue_link = driver.find_element_by_tag_name('a')
-        elems = driver.find_elements_by_xpath("//a[@href]")
-        link = None
-        for elem in elems:
-            attribute = elem.get_attribute("href")
-            if ("watch?v=") in attribute:
-                link = attribute
-                break
-        driver.quit()
-        return link
-
+            
 
     async def play_youtube(self, youtube_link):
-        #  Gets the info of the video
-        # Then streams the video audio and plays it in the voice channel
+        """Downloads and plays the audio of the youtube link passed"""
 
         youtube_link = youtube_link.split("&list=")[0]
 
         try:
             downloader = youtube_dl.YoutubeDL({'format': 'bestaudio', 'title': True})
             extracted_info = downloader.extract_info(youtube_link, download=False)
+        # "format" is not available for livestreams - redownload the page with no options
         except:
             try:
                 downloader = youtube_dl.YoutubeDL({})
@@ -177,13 +205,13 @@ class AudioController(object):
                 self.next_song(None)
 
         
-        # updates song info
+        # Update the songinfo to reflect the current song
         self.current_songinfo = Songinfo(extracted_info.get('uploader'), extracted_info.get('creator'),
                                          extracted_info.get('title'), extracted_info.get('duration'),
                                          extracted_info.get('like_count'), extracted_info.get('dislike_count'),
                                          extracted_info.get('webpage_url'))
 
-        # the nickname of the bot is changed to the title of the video
+        # Change the nickname to indicate, what song is currently playing
         await self.guild.me.edit(nick=playing_string(extracted_info.get('title')))
         self.playlist.add_name(extracted_info.get('title'))
         
