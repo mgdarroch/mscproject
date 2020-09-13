@@ -3,13 +3,15 @@ import discord
 from discord.ext import commands
 import sys  
 import re
-import urllib.request
+import aiohttp
+import asyncio
 import urllib.parse
 import json
 import codecs
 import os
 import socket
 import collections
+import ftfy
 from socket import AF_INET, SOCK_DGRAM
 from bot import audiocontroller
 from bot import utils
@@ -21,25 +23,23 @@ def load_credentials():
     client_access_token = config.CLIENT_ACCESS_TOKEN
     return client_id, client_secret, client_access_token
 
+
+
+async def get_site_content(url, auth_token):
+    headers= {"Authorization": "Bearer 5VzW7o-T0DxPPY0WAspwPixaUAlXk5tEg4dlyJwVs94DBYwHdE83lfXIKijGatLr"}
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(url) as resp:
+            return await resp.json()
     
-def search(search_term,client_access_token):
+async def search(search_term,client_access_token):
     return_list = []
     page=1
     while page < 2:
-        querystring = "http://api.genius.com/search?q=" + urllib.parse.quote(search_term) + "&page=" + str(page)
-        request_att = urllib.request.Request(querystring)
-        request_att.add_header("Authorization", "Bearer " + client_access_token)   
-        request_att.add_header("User-Agent", "curl/7.9.8 (i686-pc-linux-gnu) libcurl 7.9.8 (OpenSSL 0.9.6b) (ipv6 enabled)") 
-        while True:
-            try:
-                response = urllib.request.urlopen(request_att, timeout=4) 
-                raw = response.read()
-            except socket.timeout:
-                print("Timeout raised and caught")
-                continue
-            break
-        json_obj = json.loads(raw)
-        body = json_obj["response"]["hits"]
+        auth_token = "Bearer " + client_access_token
+        querystring = "https://api.genius.com/search?q=" + urllib.parse.quote(search_term) + "&page=" + str(page)
+        json_data = await get_site_content(querystring, auth_token)
+        body = json_data["response"]["hits"]
+
 
         num_hits = len(body)
         if num_hits==0:
@@ -50,7 +50,7 @@ def search(search_term,client_access_token):
             
         for result in body:
             result_id = result["result"]["id"]
-            title = result["result"]["title"].replace("’", "'").replace("m", "m")
+            title = result["result"]["title"].replace("’", "'")
             url = result["result"]["url"]
             path = result["result"]["path"]
             primaryartist_id = result["result"]["primary_artist"]["id"]
@@ -74,10 +74,10 @@ class Lyrics(commands.Cog):
         genius = lyricsgenius.Genius(client_access_token)
         print('Lyrics Cog Loaded')
         
-    @commands.command(description = config.HELP_LYRICSEARCH_LONG, help = config.HELP_LYRICSEARCH_SHORT)
+    @commands.command(description=config.HELP_LYRICSEARCH_LONG, help=config.HELP_LYRICSEARCH_SHORT)
     async def lyricsearch(self, ctx, *, lyrics):
         client_id, client_secret, client_access_token = load_credentials()
-        results = search(lyrics, client_access_token)
+        results = await search(lyrics, client_access_token)
         await ctx.send("Results Found!")
         message = ''
         line_count = 1
@@ -91,7 +91,7 @@ class Lyrics(commands.Cog):
     @commands.command(description = config.HELP_LYRICPLAY_LONG, help = config.HELP_LYRICPLAY_SHORT)
     async def lyricplay(self, ctx, *, lyrics):
         client_id, client_secret, client_access_token = load_credentials()
-        results = search(lyrics, client_access_token)
+        results = await search(lyrics, client_access_token)
         search_term = ""
         
         current_guild = utils.get_guild(self.client, ctx.message)

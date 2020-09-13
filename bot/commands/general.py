@@ -6,11 +6,6 @@ from bot.audiocontroller import AudioController
 
 
 class General(commands.Cog):
-    """ A collection of the commands for moving the bot around in you server.
-
-            Attributes:
-                bot: The instance of the bot that is executing the commands.
-    """
 
     def __init__(self, client):
         self.client = client

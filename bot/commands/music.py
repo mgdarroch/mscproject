@@ -6,11 +6,7 @@ from config import config
 
 
 class Music(commands.Cog):
-    """ A collection of the commands related to music playback.
 
-        Attributes:
-            bot: The instance of the bot that is executing the commands.
-    """
     def __init__(self, client):
         self.client = client
 
@@ -19,7 +15,7 @@ class Music(commands.Cog):
         print('Music Cog Loaded')
 
 
-    @commands.command(name='yt', description = config.HELP_YT_LONG, help = config.HELP_YT_SHORT)
+    @commands.command(name='play', description = config.HELP_YT_LONG, help = config.HELP_YT_SHORT)
     async def _play_youtube(self, ctx, *, track: str):
         current_guild = utils.get_guild(self.client, ctx.message)
 

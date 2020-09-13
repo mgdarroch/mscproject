@@ -8,13 +8,11 @@ import asyncio
 import aiohttp
 import sys
 import html5lib
+import ftfy
 import re
 import json
 from string import printable
 from bs4 import BeautifulSoup
-
-
-from arsenic import get_session, keys, browsers, services
 
 # imports for AudioController object
 from config import config
@@ -117,7 +115,8 @@ class AudioController(object):
         text = await self.get_site_content(link)
         soup = BeautifulSoup(text, 'html5lib')
         aid=soup.find('script',string=re.compile('ytInitialData'))
-        script=extracted_josn_text=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
+        script=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
+        script = ftfy.fix_text(script)
         video_results=json.loads(script)
         json_out = json.dump(video_results, open("script.json", "w", encoding="utf-8"))
         item_section=video_results["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"]
@@ -142,21 +141,12 @@ class AudioController(object):
         
         text = await self.get_site_content(url)
         soup = BeautifulSoup(text, 'html5lib')
-        #with open("soup-output.txt", "w", encoding="utf-8") as f:
-        #    f.write(soup.prettify())
-        
         aid=soup.find('script',string=re.compile('ytInitialData'))
-        #with open("output.txt", "w", encoding="utf-8") as f:
-        #    f.write(aid.prettify())
-        script=extracted_josn_text=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
-        #with open("script.txt", "w", encoding="utf-8") as f:
-        #    f.write(script)
+        script=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
+        script = ftfy.fix_text(script)
         video_results=json.loads(script)
         json_out = json.dump(video_results, open("script.json", "w", encoding="utf-8"))
         item_section=video_results["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"]
-        #with open('item_section.txt', 'w', encoding="utf-8") as filehandle:
-        #    for listitem in item_section:
-        #        filehandle.write('%s\n' % listitem)
         
         urls = []
         for item in item_section:
@@ -225,7 +215,7 @@ class AudioController(object):
                 not self.guild.voice_client.is_paused() and not self.guild.voice_client.is_playing()):
             return
         self.playlist.next()
-        self.playlist.playqueue.clear()
+        self.playlist.empty()
         self.guild.voice_client.stop()
         await self.guild.me.edit(nick=config.DEFAULT_NICKNAME)
 

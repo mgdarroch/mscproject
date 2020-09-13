@@ -4,7 +4,6 @@ from config import config
 
 
 class Playlist:
-    """Stores the youtube links of songs to be played and already played and offers basic operation on the queues"""
 
     def __init__(self):
         # Stores the ytlinks os the songs in queue and the ones already played

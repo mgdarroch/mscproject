@@ -506,7 +506,7 @@ class ChatBot(commands.Cog):
         
     @commands.command()
     async def chat(self, ctx, *, question):
-        await ctx.send(predict(question))
+      await ctx.send(ctx.message.author.mention + ", " + predict(question))
       
 
 def setup(client):
