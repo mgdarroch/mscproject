@@ -42,8 +42,6 @@ async def search(search_term,client_access_token):
         json_str = ftfy.fix_encoding(json_str)
         json_data = json.loads(json_str)
         body = json_data["response"]["hits"]
-        json_out = json.dump(json_data, open("geniusjson.json", "w", encoding="utf-8"))
-
 
         num_hits = len(body)
         if num_hits==0:

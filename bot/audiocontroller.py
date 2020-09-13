@@ -146,8 +146,6 @@ class AudioController(object):
         
         text = await self.get_site_content(url)
         text = ftfy.fix_encoding(text)
-        with open ("text_out.txt", "w+", encoding="utf-8") as f:
-            f.write(text)
         soup = BeautifulSoup(text, 'html5lib')
         aid=soup.find('script',string=re.compile('ytInitialData'))
         
@@ -157,14 +155,17 @@ class AudioController(object):
         # bot.  What follows is my attempt to rescue BeautifulSoup and keep this bot quick and efficient.  It works now, but Youtube may change something
         # again and completely break it in the future.
         
+        try:
+            # This is a much neater way of doing things, but if the search turns up a video which has a ';' in it, this causes the JSON to be broken and have unterminated strings.
+            script=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
+            script = ftfy.fix_encoding(script)
+            video_results=json.loads(script)
+        except ValueError:
+            # Because of the unterminated strings issue, I've had to do this, take off 108 characters from the end of the file.
+            script=aid.get_text().replace('window["ytInitialData"] =','').strip()[:-107]
+            script = ftfy.fix_encoding(script)
+            video_results=json.loads(script)
         
-        # This is a much neater way of doing things, but if the search turns up a video which has a ';' in it, this causes the JSON to be broken and have unterminated strings.
-        #script=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
-        
-        # Because of the unterminated strings issue, I've had to do this, take off 108 characters from the end of the file.
-        script=aid.get_text().replace('window["ytInitialData"] =','').strip()[:-107]
-        script = ftfy.fix_encoding(script)
-        video_results=json.loads(script)
         item_section=video_results["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"]
         
         urls = []
