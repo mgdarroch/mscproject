@@ -115,10 +115,15 @@ class AudioController(object):
         text = await self.get_site_content(link)
         soup = BeautifulSoup(text, 'html5lib')
         aid=soup.find('script',string=re.compile('ytInitialData'))
-        script=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
+            
+        # The following line is a much neater way of doing things, but if the search turns up a video which has a ';' in it, this causes the JSON to be broken and have unterminated strings.
+        #script=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
+        
+        # Because of the unterminated strings issue, I've had to do this, take off 108 characters from the end of the file.
+        script=aid.get_text().replace('window["ytInitialData"] =','').strip()[:-107]
+        
         script = ftfy.fix_text(script)
         video_results=json.loads(script)
-        json_out = json.dump(video_results, open("script.json", "w", encoding="utf-8"))
         item_section=video_results["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"]
         links = []
         for item in item_section:
@@ -140,12 +145,26 @@ class AudioController(object):
         url = "https://www.youtube.com/results?search_query=" + query
         
         text = await self.get_site_content(url)
+        text = ftfy.fix_encoding(text)
+        with open ("text_out.txt", "w+", encoding="utf-8") as f:
+            f.write(text)
         soup = BeautifulSoup(text, 'html5lib')
         aid=soup.find('script',string=re.compile('ytInitialData'))
-        script=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
-        script = ftfy.fix_text(script)
+        
+        # When this part of the project was done a few months ago now, Youtube search displayed with regular HTML.  It has since been changed
+        # to display itself in JSON which is embedded inside a script tag so the page can be dynamically loaded.  This broke everything, forcing me
+        # to use Selenium.  Selenium was too slow however and because it doesn't work well the async it caused blocking which then crashes the discord 
+        # bot.  What follows is my attempt to rescue BeautifulSoup and keep this bot quick and efficient.  It works now, but Youtube may change something
+        # again and completely break it in the future.
+        
+        
+        # This is a much neater way of doing things, but if the search turns up a video which has a ';' in it, this causes the JSON to be broken and have unterminated strings.
+        #script=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
+        
+        # Because of the unterminated strings issue, I've had to do this, take off 108 characters from the end of the file.
+        script=aid.get_text().replace('window["ytInitialData"] =','').strip()[:-107]
+        script = ftfy.fix_encoding(script)
         video_results=json.loads(script)
-        json_out = json.dump(video_results, open("script.json", "w", encoding="utf-8"))
         item_section=video_results["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"]
         
         urls = []

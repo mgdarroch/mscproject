@@ -38,7 +38,11 @@ async def search(search_term,client_access_token):
         auth_token = "Bearer " + client_access_token
         querystring = "https://api.genius.com/search?q=" + urllib.parse.quote(search_term) + "&page=" + str(page)
         json_data = await get_site_content(querystring, auth_token)
+        json_str = json.dumps(json_data)
+        json_str = ftfy.fix_encoding(json_str)
+        json_data = json.loads(json_str)
         body = json_data["response"]["hits"]
+        json_out = json.dump(json_data, open("geniusjson.json", "w", encoding="utf-8"))
 
 
         num_hits = len(body)
