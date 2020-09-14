@@ -37,7 +37,7 @@ async def on_ready():
         try:
             await guild_to_audiocontroller[guild].register_voice_channel(guild.voice_channels[0])
         except:
-            print("could not join "+guild.name)
+            print("Failed to join " + guild.name)
         
     print(STARTUP_COMPLETE_MESSAGE)
 
@@ -49,7 +49,7 @@ async def on_guild_join(guild):
     try:
         await guild_to_audiocontroller[guild].register_voice_channel(guild.voice_channels[0])
     except:
-        print("could not join "+guild.name)
+        print("Failed to join " + guild.name)
     
 
 @client.command()

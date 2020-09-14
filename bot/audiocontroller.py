@@ -67,9 +67,22 @@ class AudioController(object):
         except Exception as e:
             print(e)
         
+    
+    async def is_connected(self):
+        return self.voice_client.is_connected()
+    
     async def register_voice_channel(self, channel):
         self.voice_client = await channel.connect()
             
+            
+    async def stop_voice_connection(self):
+        try:
+            await self.stop_player()
+            await self.voice_client.disconnect(force=True)
+        except:
+            pass
+            
+
         
     def track_history(self):
         history_string = config.INFO_HISTORY_TITLE

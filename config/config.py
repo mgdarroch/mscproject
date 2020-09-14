@@ -43,6 +43,8 @@ HELP_CC_SHORT = "Change voicechannel"
 HELP_CC_LONG = "Switches the bot to another voicechannel."
 HELP_CONNECT_SHORT = "Connect bot to voicechannel"
 HELP_CONNECT_LONG = ""
+HELP_SUMMON_SHORT = ""
+HELP_SUMMON_LONG = ""
 HELP_DISCONNECT_SHORT = "Connect bot from voicechannel"
 HELP_DISCONNECT_LONG = ""
 
