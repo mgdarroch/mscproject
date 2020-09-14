@@ -19,4 +19,6 @@ Finally:
 
 python run.py
 
-# USAGE
+# Usage
+
+** Command List **
