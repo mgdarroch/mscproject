@@ -1,7 +1,7 @@
 token: str = "NzMzMzQ4MDg0NzEyNzM0NzIw.XxB1oA.MR2XoAA-Oe3TxKOI0lPjmKVoUbY"
 CLIENT_ID = '9bghKCR_r63trsjHm5xKOlX-ao14wm-WZjp3YtYliI9zkeL04U8phKvHWh93ve27'
 CLIENT_SECRET = 'x3tpg54Pfd2-2McPxjFIbco9L95fKnQmDTglS6Bv8QrwJhydpoUD54El1EvRqNu1BTQP8eDQ7JAviFMyqBNLdQ'
-CLIENT_ACCESS_TOKEN = '5VzW7o-T0DxPPY0WAspwPixaUAlXk5tEg4dlyJwVs94DBYwHdE83lfXIKijGatLr'
+CLIENT_ACCESS_TOKEN = 'Guxci2VxlB5aOZ5O5RXUARnBBkfyNcyiE02UI_kGQz-H2Am1me6q72bYXHlJZ4ue'
 
 DEFAULT_NICKNAME = "{DiscBot}"
 
@@ -36,6 +36,8 @@ HELP_LYRICPLAY_SHORT = "Finds and plays the song from lyrics."
 HELP_LYRICPLAY_LONG = "Uses the provided lyrics to search up a song and play it in a voice channel"
 HELP_LYRICSEARCH_SHORT = "Returns a list of songs based on the lyrics provided"
 HELP_LYRICSEARCH_LONG = "Uses the lyrics provided to search for linked songs and displays the results in a list"
+HELP_GETLYRICS_SHORT = ""
+HELP_GETLYRICS_LONG = ""
 
 HELP_ADDBOT_SHORT = "Add Bot to another server"
 HELP_ADDBOT_LONG = "Gives you the link for adding this bot to another server of yours."

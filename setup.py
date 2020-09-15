@@ -17,7 +17,7 @@ setup(
         "matplotlib==3.2.2",
         "discord.py[voice]==1.4.1",
         "lyricsgenius==1.8.6",
-        "youtube-dl==2020.7.28",
+        "youtube-dl==2020.9.14",
         "pytest==5.4.3",
         "pytest-asyncio==0.14.0"
         "distest==0.4.8",

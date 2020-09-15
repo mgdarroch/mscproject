@@ -83,7 +83,6 @@ class AudioController(object):
             pass
             
 
-        
     def track_history(self):
         history_string = config.INFO_HISTORY_TITLE
         for trackname in self.playlist.trackname_history:
@@ -92,7 +91,7 @@ class AudioController(object):
     
     def track_queue(self):
         queue_string = config.QUEUE_TITLE
-        for trackname in self.playlist.playqueue:
+        for trackname in self.playlist.playqueuename_history:
             queue_string += "\n" + trackname
         return queue_string
 
@@ -111,6 +110,7 @@ class AudioController(object):
         
         
     async def get_site_content(self, url):
+    
         headers= {"User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"}
         async with aiohttp.ClientSession(headers=headers) as session:
             print("URL BEING SEARCHED FOR: " + url)
@@ -206,9 +206,18 @@ class AudioController(object):
                     return
         else:
             link = track
+            
+        try:
+            downloader = youtube_dl.YoutubeDL({})
+            extracted_info = downloader.extract_info(link, download=False)
+        except:
+            print("Unable to download")
+            
         self.playlist.add(link)
+        self.playlist.add_name_queue(extracted_info.get('title'))
         if len(self.playlist.playqueue) == 1:
             await self.play_youtube(link)
+            
             
 
     async def play_youtube(self, youtube_link):
@@ -236,7 +245,8 @@ class AudioController(object):
 
         # Change the nickname to indicate, what song is currently playing
         await self.guild.me.edit(nick=playing_string(extracted_info.get('title')))
-        self.playlist.add_name(extracted_info.get('title'))
+        self.playlist.add_name_history(extracted_info.get('title'))
+
         
         self.voice_client.play(discord.FFmpegPCMAudio(extracted_info['url'], before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'), after=lambda e: self.next_song(e))
         self.voice_client.source = discord.PCMVolumeTransformer(self.guild.voice_client.source)

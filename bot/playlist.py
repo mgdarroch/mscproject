@@ -12,15 +12,20 @@ class Playlist:
 
         # A seperate history that remembers the names of the tracks that were played
         self.trackname_history = deque()
-        self.playquename_history = deque()
+        self.playqueuename_history = deque()
 
     def __len__(self):
         return len(self.playqueue)
 
-    def add_name(self, trackname):
+    def add_name_history(self, trackname):
         self.trackname_history.append(trackname)
         if len(self.trackname_history) > config.MAX_TRACKNAME_HISTORY_LENGTH:
                 self.trackname_history.popleft()
+
+    def add_name_queue(self, trackname):
+        self.playqueuename_history.append(trackname)
+        if len(self.playqueuename_history) > config.MAX_TRACKNAME_HISTORY_LENGTH:
+                self.playqueuename_history.popright()
 
     def add(self, track):
         self.playqueue.append(track)
