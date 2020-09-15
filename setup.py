@@ -18,8 +18,6 @@ setup(
         "discord.py[voice]==1.4.1",
         "lyricsgenius==1.8.6",
         "youtube-dl==2020.7.28",
-        "selenium==3.141.0",
-        "webdriver_manager==3.2.2",
         "pytest==5.4.3",
         "pytest-asyncio==0.14.0"
         "distest==0.4.8",
