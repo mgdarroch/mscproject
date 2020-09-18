@@ -5,9 +5,17 @@ from config.config import *
 from bot.audiocontroller import AudioController
 from bot.utils import guild_to_audiocontroller
 
+class TestableBot(commands.Bot):
+    def __init__(self, command_prefix=".", **options):
+        super().__init__(command_prefix, **options)
+        
+    async def process_commands(self, message):
+        ctx = await self.get_context(message)
+        await self.invoke(ctx)
+
 # 'bot.commands.chatbot'
 initial_extensions = ['bot.commands.music', 'bot.commands.general', 'bot.commands.lyrics']
-client = commands.Bot(command_prefix=".", pm_help=True)
+client = TestableBot(command_prefix=".", pm_help=True)
 
 if __name__ == '__main__':
     for extension in initial_extensions:

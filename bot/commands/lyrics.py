@@ -26,8 +26,6 @@ def load_credentials():
     client_access_token = config.CLIENT_ACCESS_TOKEN
     return client_id, client_secret, client_access_token
 
-
-
 async def get_site_content_as_json(url, auth_token):
     headers= {"Authorization": "Bearer Guxci2VxlB5aOZ5O5RXUARnBBkfyNcyiE02UI_kGQz-H2Am1me6q72bYXHlJZ4ue"}
     async with aiohttp.ClientSession(headers=headers) as session:
@@ -93,18 +91,21 @@ class Lyrics(commands.Cog):
     
     def __init__(self, client):
         self.client = client
+        self.client_id = None
+        self.client_secret = None
+        self.client_access_token = None
+        
         
     @commands.Cog.listener()
     #self must be the first parameter that every function in the class takes
     async def on_ready(self):
-        client_id, client_secret, client_access_token = load_credentials()
-        genius = lyricsgenius.Genius(client_access_token)
+        self.client_id, self.client_secret, self.client_access_token = load_credentials()
+        genius = lyricsgenius.Genius(self.client_access_token)
         print('Lyrics Cog Loaded')
         
     @commands.command(description=config.HELP_LYRICSEARCH_LONG, help=config.HELP_LYRICSEARCH_SHORT)
     async def lyricsearch(self, ctx, *, lyrics):
-        client_id, client_secret, client_access_token = load_credentials()
-        results = await search(lyrics, client_access_token)
+        results = await search(lyrics, self.client_access_token)
         await ctx.send("Results Found!")
         message = ''
         line_count = 1
@@ -117,8 +118,7 @@ class Lyrics(commands.Cog):
     
     @commands.command(description = config.HELP_LYRICPLAY_LONG, help = config.HELP_LYRICPLAY_SHORT)
     async def lyricplay(self, ctx, *, lyrics):
-        client_id, client_secret, client_access_token = load_credentials()
-        results = await search(lyrics, client_access_token)
+        results = await search(lyrics, self.client_access_token)
         search_term = ""
         
         current_guild = utils.get_guild(self.client, ctx.message)
