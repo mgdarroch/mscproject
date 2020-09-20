@@ -15,13 +15,9 @@ To install all Python environment requirements:
 
 python setup.py install
 
-Afterwards, add the bot to your Discord server by following this link:
-
-https://discord.com/oauth2/authorize?client_id=733348084712734720&scope=bot
-
 Finally:
 
-python run.py
+Use the startup.bat file or use run the run.py file from the Python shell.
 
 
 # Bot Demo
