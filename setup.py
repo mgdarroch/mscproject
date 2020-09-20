@@ -24,7 +24,7 @@ setup(
         "distest==0.4.8",
         "scipy==1.4.1",
         "aiohttp==3.6.2",
-        "ftfy==5.8"
+        "ftfy==5.8" 
     ],
     python_requires='==3.7.4',
 )
