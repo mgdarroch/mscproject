@@ -410,7 +410,7 @@ NUM_LAYERS = 2
 D_MODEL = 256
 NUM_HEADS = 8
 UNITS = 512
-DROPOUT = 0.1
+DROPOUT = 0.5
 
 model = transformer(
     vocab_size=VOCAB_SIZE,
@@ -460,7 +460,7 @@ def accuracy(y_true, y_pred):
 
 model.compile(optimizer=optimizer, loss=loss_function, metrics=[accuracy])
 
-EPOCHS = 2
+EPOCHS = 40
 
 model.load_weights('bot/commands/chatbot_files/trainedweights')
 

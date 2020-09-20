@@ -25,13 +25,14 @@ class Playlist:
     def add_name_queue(self, trackname):
         self.playqueuename_history.append(trackname)
         if len(self.playqueuename_history) > config.MAX_TRACKNAME_HISTORY_LENGTH:
-                self.playqueuename_history.popright()
+                self.playqueuename_history.popleft()
 
     def add(self, track):
         self.playqueue.append(track)
 
     def next(self):
         song_played = self.playqueue.popleft()
+        song_played_name = self.playqueuename_history.popleft()
         if song_played != "Dummy":
             self.playhistory.append(song_played)
             if len(self.playhistory) > config.MAX_HISTORY_LENGTH:

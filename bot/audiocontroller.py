@@ -67,6 +67,8 @@ class AudioController(object):
         except Exception as e:
             print(e)
         
+    async def playlist_length(self):
+        return len(self.playlist)
     
     async def is_connected(self):
         return self.voice_client.is_connected()

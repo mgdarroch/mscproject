@@ -27,7 +27,11 @@ class Music(commands.Cog):
         if track.isspace() or not track:
             return
         await audiocontroller.add_youtube(track)
-        await utils.send_message(ctx, "Playing from Youtube...")
+        playlist_length = await audiocontroller.playlist_length()
+        if playlist_length >= 1:
+            await utils.send_message(ctx, "Adding " + ctx.message.author.mention +  "'s song to the playlist...")
+        else:
+            await utils.send_message(ctx, "Playing " + ctx.message.author.mention +  "'s song from YouTube...")
 
     @commands.command(name='pause', description= config.HELP_PAUSE_LONG, help = config.HELP_PAUSE_SHORT)
     async def _pause(self, ctx):
@@ -113,7 +117,12 @@ class Music(commands.Cog):
         song = spotify_member.activity.title + " " + spotify_member.activity.artist
 
         await utils.guild_to_audiocontroller[current_guild].add_song(song)
-        await utils.send_message(ctx, "Playing from Spotify...")
+        audiocontroller = utils.guild_to_audiocontroller[current_guild]
+        playlist_length = await audiocontroller.playlist_length()
+        if playlist_length >= 1:
+            await utils.send_message(ctx, "Adding song from " + ctx.message.author.mention + "'s Spotify to queue...")
+        else:
+            await utils.send_message(ctx, "Playing song from " + ctx.message.author.mention + "'s Spotify...")
 
     @commands.command(name='songinfo', description = config.HELP_SONGINFO_LONG, help = config.HELP_SONGINFO_SHORT)
     async def _songinfo(self, ctx):
