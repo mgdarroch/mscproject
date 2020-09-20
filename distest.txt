@@ -1,1 +1,9 @@
+To run the Tester Bot you first need to run the Musicbot with the run_bot_testable.py.
+
+Invite the Tester Bot to your server:
+
+https://discord.com/api/oauth2/authorize?client_id=752936856584192141&permissions=8&scope=bot
+
+Then run:
+
 python .\distest_example.py 733348084712734720 NzUyOTM2ODU2NTg0MTkyMTQx.X1e5Fw.35vCPWfZb0BmY94HKz0RMDF2t2M

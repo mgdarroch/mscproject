@@ -3,7 +3,7 @@ CLIENT_ID = '9bghKCR_r63trsjHm5xKOlX-ao14wm-WZjp3YtYliI9zkeL04U8phKvHWh93ve27'
 CLIENT_SECRET = 'x3tpg54Pfd2-2McPxjFIbco9L95fKnQmDTglS6Bv8QrwJhydpoUD54El1EvRqNu1BTQP8eDQ7JAviFMyqBNLdQ'
 CLIENT_ACCESS_TOKEN = 'Guxci2VxlB5aOZ5O5RXUARnBBkfyNcyiE02UI_kGQz-H2Am1me6q72bYXHlJZ4ue'
 
-DEFAULT_NICKNAME = "{DiscBot}"
+DEFAULT_NICKNAME = "MSc Development Project 2020"
 
 STARTUP_MESSAGE = "Starting Bot..."
 STARTUP_COMPLETE_MESSAGE = "Startup Complete"
@@ -34,7 +34,7 @@ SONGINFO_DISLIKES = "Dislikes: "
 
 HELP_LYRICPLAY_SHORT = "Finds and plays the song from lyrics. .lyricplay <lyrics>"
 HELP_LYRICPLAY_LONG = "Uses the provided lyrics to search up a song and play it in a voice channel"
-HELP_LYRICSEARCH_SHORT = "Returns a list of songs based on the lyrics provided. .lyricsearch <lyrics>"
+HELP_LYRICSEARCH_SHORT = "Shows list of songs based on the lyrics provided. .lyricsearch <lyrics>"
 HELP_LYRICSEARCH_LONG = "Uses the lyrics provided to search for linked songs and displays the results in a list"
 #HELP_GETLYRICS_SHORT = ""
 #HELP_GETLYRICS_LONG = ""
@@ -64,7 +64,7 @@ HELP_SKIP_SHORT = "Skip a song"
 HELP_SKIP_LONG = "Skips the currently playing song and goes to the next item in the queue."
 HELP_SONGINFO_SHORT = "Info about current Song"
 HELP_SONGINFO_LONG = "Shows details about the song currently being played and posts a link to the song."
-HELP_SPOTIFY_SHORT = "Play song from Spotify.  Whoever uses the command must be listening to a song on Spotify AND have Spotify linked to their Discord account."
+HELP_SPOTIFY_SHORT = "Play song from Spotify.  Use .help spotify for more."
 HELP_SPOTIFY_LONG = ("Play song from Spotify.  Whoever uses the command must be listening to a song on Spotify AND have Spotify linked to their Discord account.  If the command sender doesn't have a Spotify account linked to their Discord AND also be listening to a song on Spotify.  This will not work.")
 HELP_STOP_SHORT = "Stop Music"
 HELP_STOP_LONG = "Stops the AudioPlayer and clears the songqueue"

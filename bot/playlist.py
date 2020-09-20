@@ -43,7 +43,7 @@ class Playlist:
 
     def prev(self):
         if len(self.playhistory) == 0:
-            dummy = "DummySong"
+            dummy = "Dummy"
             self.playqueue.appendleft(dummy)
             return dummy
         self.playqueue.appendleft(self.playhistory.pop())

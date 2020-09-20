@@ -19,6 +19,24 @@ class General(commands.Cog):
     @commands.command(name='summon', description=config.HELP_SUMMON_LONG, help=config.HELP_SUMMON_SHORT)
     async def _summon(self, ctx):
         current_guild = ctx.message.guild
+        dest_channel_name = ctx.message.author.voice.channel
+        if current_guild is None:
+            await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
+            return
+        
+        if utils.guild_to_audiocontroller[current_guild] is None:
+            utils.guild_to_audiocontroller[current_guild] = AudioController(self.client, current_guild, config.DEFAULT_VOLUME)
+            
+        if await utils.guild_to_audiocontroller[current_guild].is_connected():
+            await utils.guild_to_audiocontroller[current_guild].stop_voice_connection()
+            
+        await utils.guild_to_audiocontroller[current_guild].register_voice_channel(await utils.get_channel(current_guild, dest_channel_name))
+        
+        if await utils.guild_to_audiocontroller[current_guild].is_connected():
+            print("CLIENT CONNECTED TO VOICE")
+        
+        msg = "Connected to " + dest_channel_name
+        await utils.send_message(ctx, msg)
         ## Automatically finds the command sender's channel and connects to it
         
 
