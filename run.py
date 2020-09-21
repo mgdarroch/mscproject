@@ -5,7 +5,8 @@ from config.config import *
 from bot.audiocontroller import AudioController
 from bot.utils import guild_to_audiocontroller
 
-initial_extensions = ['bot.commands.music', 'bot.commands.general', 'bot.commands.lyrics', 'bot.commands.chatbot']
+# 'bot.commands.chatbot'
+initial_extensions = ['bot.commands.music', 'bot.commands.general', 'bot.commands.lyrics',]
 client = commands.Bot(command_prefix=".", pm_help=True)
 
 if __name__ == '__main__':

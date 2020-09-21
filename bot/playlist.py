@@ -17,22 +17,33 @@ class Playlist:
     def __len__(self):
         return len(self.playqueue)
 
+
+
     def add_name_history(self, trackname):
         self.trackname_history.append(trackname)
         if len(self.trackname_history) > config.MAX_TRACKNAME_HISTORY_LENGTH:
                 self.trackname_history.popleft()
+
+
 
     def add_name_queue(self, trackname):
         self.playqueuename_history.append(trackname)
         if len(self.playqueuename_history) > config.MAX_TRACKNAME_HISTORY_LENGTH:
                 self.playqueuename_history.popleft()
 
+
+
     def add(self, track):
         self.playqueue.append(track)
 
+
+
     def next(self):
         song_played = self.playqueue.popleft()
-        song_played_name = self.playqueuename_history.popleft()
+        if len(self.playqueuename_history) == 0:
+            pass
+        else:
+            song_played_name = self.playqueuename_history.popleft()
         if song_played != "Dummy":
             self.playhistory.append(song_played)
             if len(self.playhistory) > config.MAX_HISTORY_LENGTH:
@@ -41,11 +52,15 @@ class Playlist:
             return None
         return self.playqueue[0]
 
+
+
     def prev(self):
         if len(self.playhistory) == 0:
             dummy = "Dummy"
             self.playqueue.appendleft(dummy)
             return dummy
+        
+        
         self.playqueue.appendleft(self.playhistory.pop())
         return self.playqueue[0]
 

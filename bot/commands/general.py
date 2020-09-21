@@ -35,7 +35,7 @@ class General(commands.Cog):
         if await utils.guild_to_audiocontroller[current_guild].is_connected():
             print("CLIENT CONNECTED TO VOICE")
         
-        msg = "Connected to " + dest_channel_name
+        msg = "Bot Summoned"
         await utils.send_message(ctx, msg)
         ## Automatically finds the command sender's channel and connects to it
         
@@ -65,28 +65,41 @@ class General(commands.Cog):
 
     @commands.command(name='disconnect', description=config.HELP_DISCONNECT_LONG, help=config.HELP_DISCONNECT_SHORT)
     async def _disconnect(self, ctx):
-        current_guild = utils.get_guild(self.client, ctx.message)
+        current_guild = ctx.message.guild
 
         if current_guild is None:
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
         
-        await utils.guild_to_audiocontroller[current_guild].stop_voice_connection()
+        if await utils.guild_to_audiocontroller[current_guild].is_connected():
+            await utils.guild_to_audiocontroller[current_guild].stop_voice_connection()
         await utils.send_message(ctx, "Disconnected from channel")
         
 
     @commands.command(name='cc', aliases=["changechannel"], description=config.HELP_CC_LONG, help=config.HELP_CC_SHORT)
     async def _changechannel(self, ctx, *, dest_channel_name: str):
-        current_guild = utils.get_guild(self.client, ctx.message)
+        current_guild = ctx.message.guild
+        dest_channel = await utils.get_channel(current_guild, dest_channel_name)
+        
+        
+        if dest_channel_name == None:
+            await utils.send_message(ctx, "No such channel!")
+            return
+            
 
         if current_guild is None:
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
         
-        await utils.guild_to_audiocontroller[current_guild].stop_voice_connection()
-        await utils.guild_to_audiocontroller[current_guild].register_voice_channel(await utils.get_channel(current_guild, dest_channel_name))
+        if await utils.guild_to_audiocontroller[current_guild].is_connected():
+            await utils.guild_to_audiocontroller[current_guild].stop_voice_connection()
+        
+
+        await utils.guild_to_audiocontroller[current_guild].register_voice_channel(dest_channel)
         if await utils.guild_to_audiocontroller[current_guild].is_connected():
             print("CLIENT CONNECTED TO VOICE")
+            
+            
         msg = "Moving to channel: " + dest_channel_name
         await utils.send_message(ctx, msg)
 

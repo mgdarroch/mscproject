@@ -106,14 +106,14 @@ class Lyrics(commands.Cog):
     @commands.command(description=config.HELP_LYRICSEARCH_LONG, help=config.HELP_LYRICSEARCH_SHORT)
     async def lyricsearch(self, ctx, *, lyrics):
         results = await search(lyrics, self.client_access_token)
-        await ctx.send("Results Found!")
+        await utils.send_message(ctx, "Results Found!")
         message = ''
         line_count = 1
         
         for song in results:
             message += "{0}. {1} - {2}\n".format(line_count,song[1], song[5])
             line_count += 1
-        await ctx.send(message)
+        await utils.send_message(ctx, message)
         
     
     @commands.command(description = config.HELP_LYRICPLAY_LONG, help = config.HELP_LYRICPLAY_SHORT)

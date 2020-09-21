@@ -46,8 +46,8 @@ async def test_resume(interface):
     await interface.assert_reply_contains(".resume", "Resuming Playback")
     
 @test_collector()
-async def test_yt(interface):
-    await interface.assert_reply_contains(".yt Bleachers Mickey Mantle", "Playing ")
+async def test_play(interface):
+    await interface.assert_reply_contains(".play Bleachers Mickey Mantle", "song to the playlist ")
     
 @test_collector()
 async def test_queue(interface):
@@ -85,10 +85,13 @@ async def test_help(interface):
 async def test_spotify(interface):
     await interface.assert_reply_contains(".spotify", "Playing from Spotify")
 
+@test_collector()
+async def test_cc(interface):
+    await interface.assert_reply_contains(".cc General2", "No such channel")
 
 @test_collector()
 async def test_cc(interface):
-    await interface.assert_reply_contains(".cc General", "Moving to channel:")
+    await interface.assert_reply_contains(".cc General 2", "Moving to channel:")
 
 
 @test_collector()
@@ -102,4 +105,4 @@ async def test_connect(interface):
 # Actually run the bot
 
 if __name__ == "__main__":
-    run_dtest_bot(sys.argv, test_collector, timeout=15)
+    run_dtest_bot(sys.argv, test_collector)

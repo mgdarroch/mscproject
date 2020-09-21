@@ -13,7 +13,8 @@ class TestableBot(commands.Bot):
         ctx = await self.get_context(message)
         await self.invoke(ctx)
 
-initial_extensions = ['bot.commands.music', 'bot.commands.general', 'bot.commands.lyrics', 'bot.commands.chatbot']
+#'bot.commands.chatbot'
+initial_extensions = ['bot.commands.music', 'bot.commands.general', 'bot.commands.lyrics',]
 client = TestableBot(command_prefix=".", pm_help=True)
 
 if __name__ == '__main__':

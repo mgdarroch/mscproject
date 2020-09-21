@@ -14,10 +14,12 @@ def get_guild(client, command):
                 return guild
     return None
 
+
 async def get_channel(guild, channel_name):
     for channel in guild.voice_channels:
         if str(channel.name).strip() == str(channel_name).strip():
             return channel
+    return None
         
 
 async def send_message(ctx, message):

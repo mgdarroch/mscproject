@@ -97,6 +97,8 @@ class AudioController(object):
             queue_string += "\n" + trackname
         return queue_string
 
+
+
     def next_song(self, error):
         # called when one song finishes playing, if there is no more songs the nickname of the bot is set to the default again.
 
@@ -210,8 +212,7 @@ class AudioController(object):
             link = track
             
         try:
-            downloader = youtube_dl.YoutubeDL({})
-            extracted_info = downloader.extract_info(link, download=False)
+            extracted_info = youtube_dl.YoutubeDL({}).extract_info(link, download=False)
         except:
             print("Unable to download")
             
@@ -219,18 +220,15 @@ class AudioController(object):
         self.playlist.add_name_queue(extracted_info.get('title'))
         if len(self.playlist.playqueue) == 1:
             await self.play_youtube(link)
-            
-            
+
+
 
     async def play_youtube(self, youtube_link):
-        """Downloads and plays the audio of the youtube link passed"""
-
-        youtube_link = youtube_link.split("&list=")[0]
+        #Downloads and plays the audio of the youtube link passed
 
         try:
             downloader = youtube_dl.YoutubeDL({'format': 'bestaudio', 'title': True})
             extracted_info = downloader.extract_info(youtube_link, download=False)
-        # "format" is not available for livestreams - redownload the page with no options
         except:
             try:
                 downloader = youtube_dl.YoutubeDL({})
@@ -239,13 +237,13 @@ class AudioController(object):
                 self.next_song(None)
 
         
-        # Update the songinfo to reflect the current song
+        # Update the songinfo
         self.current_songinfo = Songinfo(extracted_info.get('uploader'), extracted_info.get('creator'),
                                          extracted_info.get('title'), extracted_info.get('duration'),
                                          extracted_info.get('like_count'), extracted_info.get('dislike_count'),
                                          extracted_info.get('webpage_url'))
 
-        # Change the nickname to indicate, what song is currently playing
+        # Bot nickname becomes what the songs title is
         await self.guild.me.edit(nick=playing_string(extracted_info.get('title')))
         self.playlist.add_name_history(extracted_info.get('title'))
 
@@ -253,6 +251,8 @@ class AudioController(object):
         self.voice_client.play(discord.FFmpegPCMAudio(extracted_info['url'], before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'), after=lambda e: self.next_song(e))
         self.voice_client.source = discord.PCMVolumeTransformer(self.guild.voice_client.source)
         self.voice_client.source.volume = float(self.volume) / 100.0
+
+
 
     async def stop_player(self):
         # stops the bot from transmitting audio in the voice channel
@@ -282,3 +282,4 @@ class AudioController(object):
             self.playlist.prev()
             self.playlist.prev()
             self.guild.voice_client.stop()
+
