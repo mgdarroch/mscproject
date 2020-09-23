@@ -15,3 +15,4 @@ bot\commands\__pycache__
 .idea
 .pytest_cache
 .vscode
+distest.txt
