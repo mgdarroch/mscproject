@@ -17,9 +17,15 @@ python setup.py install
 
 Finally:
 
-Use the startup.bat file or use run the run.py file from the Python shell.
+Run the run.py file from the Python shell.
+
+(Python .\run.py)
 
 
 # Bot Demo
+If any help is needed inside the Discord client use .help
 
-https://youtu.be/hqcfI8HwwrQ
+For additional information, use .help (command name)
+
+
+[Here](https://youtu.be/hqcfI8HwwrQ) is a short YouTube video demonstrating it.

@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 
+# BASIC ADMINISTRATIVE TOOLS.  NOT NECESSARY MOST SERVERS HAVE BETTER ONES.
+
 class AdminTools(commands.Cog):
     
     def __init__(self, client):

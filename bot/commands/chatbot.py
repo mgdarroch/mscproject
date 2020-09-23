@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import discord
 from discord.ext import commands
 tf.config.run_functions_eagerly(True)
+# THIS IS THE CHATBOT
 
 
 path_to_zip = tf.keras.utils.get_file(

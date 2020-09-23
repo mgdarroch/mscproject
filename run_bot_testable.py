@@ -2,8 +2,8 @@ import discord
 import os
 from discord.ext import commands
 from config.config import *
-from bot.audiocontroller import AudioController
-from bot.utils import guild_to_audiocontroller
+from bot.music_control import MusicControl 
+from bot.utilities import guild_to_musiccontrol
 
 class TestableBot(commands.Bot):
     def __init__(self, command_prefix=".", **options):
@@ -13,8 +13,7 @@ class TestableBot(commands.Bot):
         ctx = await self.get_context(message)
         await self.invoke(ctx)
 
-#'bot.commands.chatbot'
-initial_extensions = ['bot.commands.music', 'bot.commands.general', 'bot.commands.lyrics',]
+initial_extensions = ['bot.commands.music', 'bot.commands.movebot', 'bot.commands.lyrics', 'bot.commands.chatbot']
 client = TestableBot(command_prefix=".", pm_help=True)
 
 if __name__ == '__main__':
@@ -33,9 +32,9 @@ async def on_ready():
     for guild in client.guilds:
         print(guild.name)
         await guild.me.edit(nick=DEFAULT_NICKNAME)
-        guild_to_audiocontroller[guild] = AudioController(client, guild, DEFAULT_VOLUME)
+        guild_to_musiccontrol[guild] = MusicControl(client, guild, DEFAULT_VOLUME)
         try:
-            await guild_to_audiocontroller[guild].register_voice_channel(guild.voice_channels[0])
+            await guild_to_musiccontrol[guild].register_voice_channel(guild.voice_channels[0])
         except:
             print("Failed to join " + guild.name)
         
@@ -45,9 +44,9 @@ async def on_ready():
 @client.event
 async def on_guild_join(guild):
     print(guild.name)
-    guild_to_audiocontroller[guild] = AudioController(client, guild, DEFAULT_VOLUME)
+    guild_to_musiccontrol[guild] = MusicControl(client, guild, DEFAULT_VOLUME)
     try:
-        await guild_to_audiocontroller[guild].register_voice_channel(guild.voice_channels[0])
+        await guild_to_musiccontrol[guild].register_voice_channel(guild.voice_channels[0])
     except:
         print("Failed to join " + guild.name)
     

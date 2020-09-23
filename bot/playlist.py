@@ -56,9 +56,9 @@ class Playlist:
 
     def prev(self):
         if len(self.playhistory) == 0:
-            dummy = "Dummy"
-            self.playqueue.appendleft(dummy)
-            return dummy
+            placeholder = "Placeholder"
+            self.playqueue.appendleft(placeholder)
+            return placeholder
         
         
         self.playqueue.appendleft(self.playhistory.pop())

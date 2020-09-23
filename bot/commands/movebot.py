@@ -1,11 +1,11 @@
 from discord.ext import commands
 
 from config import config
-from bot import utils
-from bot.audiocontroller import AudioController
+from bot import utilities as utils
+from bot.music_control import MusicControl
 
 
-class General(commands.Cog):
+class MoveBot(commands.Cog):
 
     def __init__(self, client):
         self.client = client
@@ -24,15 +24,15 @@ class General(commands.Cog):
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
         
-        if utils.guild_to_audiocontroller[current_guild] is None:
-            utils.guild_to_audiocontroller[current_guild] = AudioController(self.client, current_guild, config.DEFAULT_VOLUME)
+        if utils.guild_to_musiccontrol[current_guild] is None:
+            utils.guild_to_musiccontrol[current_guild] = MusicControl(self.client, current_guild, config.DEFAULT_VOLUME)
             
-        if await utils.guild_to_audiocontroller[current_guild].is_connected():
-            await utils.guild_to_audiocontroller[current_guild].stop_voice_connection()
+        if await utils.guild_to_musiccontrol[current_guild].is_connected():
+            await utils.guild_to_musiccontrol[current_guild].stop_voice_connection()
             
-        await utils.guild_to_audiocontroller[current_guild].register_voice_channel(await utils.get_channel(current_guild, dest_channel_name))
+        await utils.guild_to_musiccontrol[current_guild].register_voice_channel(await utils.get_channel(current_guild, dest_channel_name))
         
-        if await utils.guild_to_audiocontroller[current_guild].is_connected():
+        if await utils.guild_to_musiccontrol[current_guild].is_connected():
             print("CLIENT CONNECTED TO VOICE")
         
         msg = "Bot Summoned"
@@ -48,15 +48,15 @@ class General(commands.Cog):
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
 
-        if utils.guild_to_audiocontroller[current_guild] is None:
-            utils.guild_to_audiocontroller[current_guild] = AudioController(self.client, current_guild, config.DEFAULT_VOLUME)
+        if utils.guild_to_musiccontrol[current_guild] is None:
+            utils.guild_to_musiccontrol[current_guild] = MusicControl(self.client, current_guild, config.DEFAULT_VOLUME)
             
-        if await utils.guild_to_audiocontroller[current_guild].is_connected():
-            await utils.guild_to_audiocontroller[current_guild].stop_voice_connection()
+        if await utils.guild_to_musiccontrol[current_guild].is_connected():
+            await utils.guild_to_musiccontrol[current_guild].stop_voice_connection()
         
-        await utils.guild_to_audiocontroller[current_guild].register_voice_channel(await utils.get_channel(current_guild, dest_channel_name))
+        await utils.guild_to_musiccontrol[current_guild].register_voice_channel(await utils.get_channel(current_guild, dest_channel_name))
         
-        if await utils.guild_to_audiocontroller[current_guild].is_connected():
+        if await utils.guild_to_musiccontrol[current_guild].is_connected():
             print("CLIENT CONNECTED TO VOICE")
         
         msg = "Connected to " + dest_channel_name
@@ -71,8 +71,8 @@ class General(commands.Cog):
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
         
-        if await utils.guild_to_audiocontroller[current_guild].is_connected():
-            await utils.guild_to_audiocontroller[current_guild].stop_voice_connection()
+        if await utils.guild_to_musiccontrol[current_guild].is_connected():
+            await utils.guild_to_musiccontrol[current_guild].stop_voice_connection()
         await utils.send_message(ctx, "Disconnected from channel")
         
 
@@ -84,19 +84,20 @@ class General(commands.Cog):
         
         if dest_channel_name == None:
             await utils.send_message(ctx, "No such channel!")
-            return
+            print("Channel Not Found")
+            return 
             
 
         if current_guild is None:
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
         
-        if await utils.guild_to_audiocontroller[current_guild].is_connected():
-            await utils.guild_to_audiocontroller[current_guild].stop_voice_connection()
+        if await utils.guild_to_musiccontrol[current_guild].is_connected():
+            await utils.guild_to_musiccontrol[current_guild].stop_voice_connection()
         
 
-        await utils.guild_to_audiocontroller[current_guild].register_voice_channel(dest_channel)
-        if await utils.guild_to_audiocontroller[current_guild].is_connected():
+        await utils.guild_to_musiccontrol[current_guild].register_voice_channel(dest_channel)
+        if await utils.guild_to_musiccontrol[current_guild].is_connected():
             print("CLIENT CONNECTED TO VOICE")
             
             
@@ -110,4 +111,4 @@ class General(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(General(client))
+    client.add_cog(MoveBot(client))

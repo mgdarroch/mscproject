@@ -1,8 +1,8 @@
 import pytest
-from bot.audiocontroller import AudioController
-import bot.audiocontroller
+from bot.music_control import MusicControl
+import bot.music_control
 import bot.playlist
-from bot.utils import guild_to_audiocontroller
+from bot.utilities import guild_to_musiccontrol
 from config import config
 import discord
 import asyncio

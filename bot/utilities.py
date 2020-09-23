@@ -1,7 +1,7 @@
 from config import config
 
-# A dictionary that remembers which guild belongs to which audiocontroller
-guild_to_audiocontroller = {}
+# A dictionary that remembers which guild belongs to which MusicControl
+guild_to_musiccontrol = {}
 
 
 def get_guild(client, command):

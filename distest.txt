@@ -6,6 +6,6 @@ https://discord.com/api/oauth2/authorize?client_id=752936856584192141&permission
 
 Then run:
 
-python .\distest_example.py 733348084712734720 NzUyOTM2ODU2NTg0MTkyMTQx.X1e5Fw.35vCPWfZb0BmY94HKz0RMDF2t2M
+python .\total_suite.py 733348084712734720 NzUyOTM2ODU2NTg0MTkyMTQx.X1e5Fw.35vCPWfZb0BmY94HKz0RMDF2t2M
 
-python .\distest_example.py 733348084712734720 NzUyOTM2ODU2NTg0MTkyMTQx.X1e5Fw.35vCPWfZb0BmY94HKz0RMDF2t2M
+python .\lyric_play_suite.py 733348084712734720 NzUyOTM2ODU2NTg0MTkyMTQx.X1e5Fw.35vCPWfZb0BmY94HKz0RMDF2t2M

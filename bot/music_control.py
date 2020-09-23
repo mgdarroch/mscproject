@@ -17,11 +17,7 @@ from bs4 import BeautifulSoup
 # imports for AudioController object
 from config import config
 from bot.playlist import Playlist
-from bot.songinfo import Songinfo
-
-
-
-
+from bot.song_info import Songinfo
 
 
 def playing_string(title):
@@ -43,8 +39,10 @@ def playing_string(title):
     return "[" + short_title.replace("(", "|") + "]"
 
 
-class AudioController(object):
-    #  The audiocontroller handles the playing of audio and the transition from one song to the next in the play queue.
+
+
+class MusicControl(object):
+    #  The controller handles the playing of audio and the transition from one song to the next in the play queue.
 
     def __init__(self, client, guild, volume):
         # initialisation values
@@ -66,17 +64,22 @@ class AudioController(object):
             self.voice_client.source.volume = float(value) / 100.0
         except Exception as e:
             print(e)
-        
+    
+    
+    # getting the length of the playlis
     async def playlist_length(self):
         return len(self.playlist)
     
+    # check if the bot is connected to the voice client
     async def is_connected(self):
         return self.voice_client.is_connected()
     
+    # connect to the voice client (allow the bot to play music)
     async def register_voice_channel(self, channel):
         self.voice_client = await channel.connect()
             
-            
+    
+    # stops the voice connection, this must be done before moving to a different channel
     async def stop_voice_connection(self):
         try:
             await self.stop_player()
@@ -85,12 +88,14 @@ class AudioController(object):
             pass
             
 
+    # used to return a string of all songs played        
     def track_history(self):
         history_string = config.INFO_HISTORY_TITLE
         for trackname in self.playlist.trackname_history:
             history_string += "\n" + trackname
         return history_string
     
+    # used to return a string of all songs in the queue
     def track_queue(self):
         queue_string = config.QUEUE_TITLE
         for trackname in self.playlist.playqueuename_history:
@@ -98,10 +103,10 @@ class AudioController(object):
         return queue_string
 
 
-
+    # this is a coroutine loop which is run in a task to constantly play the next song in the playlist.
+    # called when one song finishes playing, if there is no more songs the nickname of the bot is set to the default again.
     def next_song(self, error):
-        # called when one song finishes playing, if there is no more songs the nickname of the bot is set to the default again.
-
+        
         self.current_songinfo = None
         next_song = self.playlist.next()
 
@@ -112,7 +117,30 @@ class AudioController(object):
 
         self.client.loop.create_task(coro)
         
+    # Reverts back to the previous song, initially you cuold get
+    # caught in a loop by just spamming .prev but this has been fixed.
+    async def prev_song(self):
+        # gets the most recent song in the track history and plays it again
+        if len(self.playlist.playhistory) == 0:
+            return None
+        if self.guild.voice_client is None or (
+                not self.guild.voice_client.is_paused() and not self.guild.voice_client.is_playing()):
+            prev_song = self.playlist.prev()
+            # Placeholder used if there is no song in the history.
+            if prev_song == "Placeholder":
+                self.playlist.next()
+                return None
+            await self.play_youtube(prev_song)
+        else:
+            self.playlist.prev()
+            self.playlist.prev()
+            self.guild.voice_client.stop()
         
+        
+        
+        
+        
+    # asynchronous function to get the content of a site in text format.  Used here to access YouTube.
     async def get_site_content(self, url):
     
         headers= {"User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"}
@@ -121,41 +149,9 @@ class AudioController(object):
             async with session.get(url) as resp:
                 return await resp.text()
 
-    async def add_youtube(self, link):
-        # Checks if a link is a playlist, if it is it parses the playlist, adding each video to the bot playlist
-        # If link isn't a playlist this method is skipped over
-        if not ("playlist?list=" in link):
-            await self.add_song(link)
-            return
 
-
-        text = await self.get_site_content(link)
-        soup = BeautifulSoup(text, 'html5lib')
-        aid=soup.find('script',string=re.compile('ytInitialData'))
-            
-        # The following line is a much neater way of doing things, but if the search turns up a video which has a ';' in it, this causes the JSON to be broken and have unterminated strings.
-        #script=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
-        
-        # Because of the unterminated strings issue, I've had to do this, take off 108 characters from the end of the file.
-        script=aid.get_text().replace('window["ytInitialData"] =','').strip()[:-107]
-        
-        script = ftfy.fix_text(script)
-        video_results=json.loads(script)
-        item_section=video_results["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"]
-        links = []
-        for item in item_section:
-            try:
-                video_info=item["videoRenderer"]
-                url=video_info["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"]
-                link = "https://www.youtube.com" + url
-                links.append(link)
-            except KeyError:
-                pass
-        
-        for link in links:
-            self.add_song(link)
-
-
+     # converts search terms to the YouTube link of the top video returned by the search.
+    # this was a pain
     async def convert_to_youtube_link(self, title):
         filter(lambda x: x in set(printable), title)
         query = urllib.parse.quote(title)
@@ -196,12 +192,52 @@ class AudioController(object):
             
         link = "https://www.youtube.com" + urls[0]
         return link
+    
+    
+    
 
-       
+    #  Intended for use in adding entire YouTube playlists.  Currently not working however.
+    async def add_youtube(self, link):
+        # Checks if a link is a playlist, if it is it parses the playlist, adding each video to the bot playlist
+        # If link isn't a playlist this method is skipped over
+        if not ("playlist?list=" in link):
+            await self.add_song(link)
+            return
+
+
+        text = await self.get_site_content(link)
+        soup = BeautifulSoup(text, 'html5lib')
+        aid=soup.find('script',string=re.compile('ytInitialData'))
             
+        # The following line is a much neater way of doing things, but if the search turns up a video which has a ';' in it, this causes the JSON to be broken and have unterminated strings.
+        #script=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
+        
+        # Because of the unterminated strings issue, I've had to do this, take off 108 characters from the end of the file.
+        script=aid.get_text().replace('window["ytInitialData"] =','').strip()[:-107]
+        
+        script = ftfy.fix_text(script)
+        video_results=json.loads(script)
+        item_section=video_results["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"]
+        links = []
+        for item in item_section:
+            try:
+                video_info=item["videoRenderer"]
+                url=video_info["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"]
+                link = "https://www.youtube.com" + url
+                links.append(link)
+            except KeyError:
+                pass
+        
+        for link in links:
+            self.add_song(link)
+
+
+   
+
+    # Adds a song to the bot's playlist.  If the song is the first one in the playlist the bot will begin playing the audio.
+    
     async def add_song(self, track):
-        # Adds a song to the bot's playlist.  If the song is the first one in the playlist the bot will begin playing the audio.
-        # If the track is a video title, get the youtube link
+        # If the track is not a link, use the convert function to get the youtube link
         if not ("https://" in track):
             link = await self.convert_to_youtube_link(track)
             if link is None:
@@ -211,6 +247,10 @@ class AudioController(object):
         else:
             link = track
             
+        
+        # This is to get the title of the song to add it to the queue.  Initially this was not used 
+        # and only the YouTube links were displayed in the queue, though after demand from users
+        # this was changed.  Unfortunately, this slows down the process of play the music.  Could be removed if speed was a concern.
         try:
             extracted_info = youtube_dl.YoutubeDL({}).extract_info(link, download=False)
         except:
@@ -222,9 +262,10 @@ class AudioController(object):
             await self.play_youtube(link)
 
 
-
+    # This function handles the playing of the music.
     async def play_youtube(self, youtube_link):
         #Downloads and plays the audio of the youtube link passed
+        # using FFmpeg
 
         try:
             downloader = youtube_dl.YoutubeDL({'format': 'bestaudio', 'title': True})
@@ -248,12 +289,13 @@ class AudioController(object):
         self.playlist.add_name_history(extracted_info.get('title'))
 
         
+        # Converts and streams the audio
         self.voice_client.play(discord.FFmpegPCMAudio(extracted_info['url'], before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'), after=lambda e: self.next_song(e))
         self.voice_client.source = discord.PCMVolumeTransformer(self.guild.voice_client.source)
         self.voice_client.source.volume = float(self.volume) / 100.0
 
 
-
+    # Stops the bot transmitting audio and clears the playlist.
     async def stop_player(self):
         # stops the bot from transmitting audio in the voice channel
         if self.guild.voice_client is None or (
@@ -264,22 +306,5 @@ class AudioController(object):
         self.guild.voice_client.stop()
         await self.guild.me.edit(nick=config.DEFAULT_NICKNAME)
 
-  
-  
-    async def prev_song(self):
-        # gets the most recent song in the track history and plays it again
-        if len(self.playlist.playhistory) == 0:
-            return None
-        if self.guild.voice_client is None or (
-                not self.guild.voice_client.is_paused() and not self.guild.voice_client.is_playing()):
-            prev_song = self.playlist.prev()
-            # The Dummy is used if there is no song in the history
-            if prev_song == "Dummy":
-                self.playlist.next()
-                return None
-            await self.play_youtube(prev_song)
-        else:
-            self.playlist.prev()
-            self.playlist.prev()
-            self.guild.voice_client.stop()
+
 

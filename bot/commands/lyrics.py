@@ -1,23 +1,18 @@
 import lyricsgenius
 import discord
 from discord.ext import commands
-import sys  
 import re
 import aiohttp
 import asyncio
 import urllib.parse
 import json
-import codecs
-import os
-import socket
 import collections
 import ftfy
 import html5lib
-from socket import AF_INET, SOCK_DGRAM
-from bot import audiocontroller
-from bot import utils
+from bot import music_control
+from bot import utilities as utils
 from config import config
-from bot import songinfo
+from bot import song_info
 from bs4 import BeautifulSoup, UnicodeDammit
 
 def load_credentials():
@@ -27,7 +22,8 @@ def load_credentials():
     return client_id, client_secret, client_access_token
 
 async def get_site_content_as_json(url, auth_token):
-    headers= {"Authorization": "Bearer Guxci2VxlB5aOZ5O5RXUARnBBkfyNcyiE02UI_kGQz-H2Am1me6q72bYXHlJZ4ue"}
+    bearer = "Bearer " + auth_token
+    headers= {"Authorization": "{}".format(bearer)}
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(url) as resp:
             return await resp.json()
@@ -125,13 +121,13 @@ class Lyrics(commands.Cog):
         if current_guild is None:
             await utils.send_message(ctx, config.NO_GUILD_MESSAGE)
             return
-        audiocontroller = utils.guild_to_audiocontroller[current_guild]
+        musiccontrol = utils.guild_to_musiccontrol[current_guild]
         
         for song in results:
             search_term += "{} {}".format(song[1], song[5])
             break
             
-        await audiocontroller.add_song(search_term)
+        await musiccontrol.add_song(search_term)
         await utils.send_message(ctx, "Added {} to playlist...".format(song[1]))
         
     #@commands.command(description= config.HELP_GETLYRICS_LONG, help= config.HELP_GETLYRICS_SHORT)
