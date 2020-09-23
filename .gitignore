@@ -12,3 +12,6 @@ bot\tests\__pycache__
 bot\__pycache__
 config\__pycache__
 bot\commands\__pycache__
+.idea
+.pytest_cache
+.vscode
