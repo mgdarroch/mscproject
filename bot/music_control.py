@@ -156,29 +156,44 @@ class MusicControl(object):
         filter(lambda x: x in set(printable), title)
         query = urllib.parse.quote(title)
         url = "https://www.youtube.com/results?search_query=" + query
+
+        print(url)
         
         text = await self.get_site_content(url)
         text = ftfy.fix_encoding(text)
-        soup = BeautifulSoup(text, 'html5lib')
-        aid=soup.find('script',string=re.compile('ytInitialData'))
-        
+
+        # YOUTUBE CHANGED THINGS AGAIN AND NOW THIS WORKS
+        text = text[text.find('{"responseContext":{"serviceTrackingParams":'):text.find('// scraper_data_end')]
+        text = text[:-3]
+        video_results = json.loads(text)
+
+        # THIS USED TO BE THE WORKING VERSION
+                
         # When this part of the project was done a few months ago now, Youtube search displayed with regular HTML.  It has since been changed
         # to display itself in JSON which is embedded inside a script tag so the page can be dynamically loaded.  This broke everything, forcing me
         # to use Selenium.  Selenium was too slow however and because it doesn't work well the async it caused blocking which then crashes the discord 
         # bot.  What follows is my attempt to rescue BeautifulSoup and keep this bot quick and efficient.  It works now, but Youtube may change something
         # again and completely break it in the future.
+
         
-        try:
-            # This is a much neater way of doing things, but if the search turns up a video which has a ';' in it, this causes the JSON to be broken and have unterminated strings.
-            script=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
-            script = ftfy.fix_encoding(script)
-            video_results=json.loads(script)
-        except ValueError:
-            # Because of the unterminated strings issue, I've had to do this, take off 108 characters from the end of the file.
-            script=aid.get_text().replace('window["ytInitialData"] =','').strip()[:-107]
-            script = ftfy.fix_encoding(script)
-            video_results=json.loads(script)
+
+        #soup = BeautifulSoup(text, 'html5lib')
+        #aid = soup.find('script',string=re.compile('ytInitialData'))
+
+        #try:
+        #    print("TRY")
+        #    # This is a much neater way of doing things, but if the search turns up a video which has a ';' in it, this causes the JSON to be broken and have unterminated strings.
+        #    script=aid.get_text().split(';')[0].replace('window["ytInitialData"] =','').strip()
+        #    script = ftfy.fix_encoding(script)
+        #    video_results=json.loads(script)
+        #except ValueError:
+        #    print("CATCH")
+        #    # Because of the unterminated strings issue, I've had to do this, take off 108 characters from the end of the file.
+        #    script=aid.get_text().replace('window["ytInitialData"] =','').strip()[:-15]
+        #    script = ftfy.fix_encoding(script)
+        #    video_results=json.loads(script)
         
+
         item_section=video_results["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"]
         
         urls = []

@@ -1,5 +1,7 @@
-#TOKENS
+
+#Discord Bot Token
 token: str = ""
+# Genius API Keys
 CLIENT_ID = ''
 CLIENT_SECRET = ''
 CLIENT_ACCESS_TOKEN = ''

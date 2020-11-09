@@ -5,6 +5,7 @@ from config.config import *
 from bot.music_control import MusicControl
 from bot.utilities import guild_to_musiccontrol
 
+# Remove 'bot.commands.chatbot' from the initial_extensions array to turn off the chatbot.
 initial_extensions = ['bot.commands.music', 'bot.commands.movebot', 'bot.commands.lyrics', 'bot.commands.chatbot']
 client = commands.Bot(command_prefix=".", pm_help=True)
 
